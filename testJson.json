@@ -1,0 +1,89 @@
+{
+  "User": [
+    {
+      "id": 1,
+      "Username": "admin1",
+      "Password": "123456",
+      "role": 1,
+      "token": "admin1123456"
+    },
+    {
+      "id": 2,
+      "Username": "admin2",
+      "Password": "123456",
+      "role": 1,
+      "token": "admin2123456"
+    },
+    {
+      "id": 3,
+      "Username": "user1",
+      "Password": "123456",
+      "role": 2,
+      "token": "admin123456"
+    }
+  ],
+  "Clients": [
+    {
+      "LicensePlate": "43K143333",
+      "logo": "https://i.stack.imgur.com/J96IY.png",
+      "id": "111",
+      "name": "Hưng Hí",
+      "address": "Đà Nẵng",
+      "contact": "0935282111"
+    }
+  ],
+  "TimeLog": [
+    {
+      "TimeIn": "12/03/2022 12:00:00",
+      "TimeOut": "12/03/2022 12:30:02",
+      "LicensePlate": "43K143111",
+      "id": "111"
+    },
+    {
+      "TimeIn": "08/03/2022 12:00:00",
+      "TimeOut": "09/03/2022 12:00:00",
+      "LicensePlate": "43K1143111",
+      "id": "222"
+    },
+    {
+      "TimeIn": "08/03/2022 12:00:00",
+      "TimeOut": "09/03/2022 12:00:00",
+      "LicensePlate": "43K1143111",
+      "id": "333"
+    }
+  ],
+  "Parkings": [
+    {
+      "slotName": "A1",
+      "status": "Empty"
+    },
+    {
+      "slotName": "A2",
+      "status": "Empty"
+    },
+    {
+      "slotName": "A3",
+      "status": "Empty"
+    },
+    {
+      "slotName": "A4",
+      "status": "Empty"
+    },
+    {
+      "slotName": "B1",
+      "status": "Empty"
+    },
+    {
+      "slotName": "B2",
+      "status": "Full"
+    },
+    {
+      "slotName": "B3",
+      "status": "Full"
+    },
+    {
+      "slotName": "B4",
+      "status": "Full"
+    }
+  ]
+}
