@@ -7,11 +7,11 @@ export const getUserById = (id) => {
   return http.get(`/User/${id}`);
 };
 export const getUserByData = (data) => {
-  return http.get(`/User`,data);
+  return http.get(`/User`, data);
 };
 export const addUser = (data) => {
-    return http.get(`/User`,data);
+  return http.post(`/User`, data);
 };
 export const deleteUserById = (id) => {
-    return http.delete(`/User/${id}`);
+  return http.delete(`/User/${id}`);
 };

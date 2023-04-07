@@ -20,6 +20,20 @@
       "Password": "123456",
       "role": 2,
       "token": "admin123456"
+    },
+    {
+      "id": 9,
+      "Username": "admin7",
+      "Password": "123456",
+      "role": 1,
+      "token": "admin2123456"
+    },
+    {
+      "Username": "admin7",
+      "Password": "123456",
+      "role": 1,
+      "token": "admin2123456",
+      "id": 10
     }
   ],
   "Clients": [
