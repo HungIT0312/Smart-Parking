@@ -15,12 +15,12 @@
   - Huynh Le Dac Tai
   
 ## Start this project 
-### Checkout to FE branch
-### Run api
+### - Checkout to FE branch
+### - Run api
 `
 npm run api
 `
-### Run project
+### - Run project
 `
 npm start
 `
