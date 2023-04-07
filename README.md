@@ -7,14 +7,23 @@
   - Search
 
 ## Technology used
-- React JS
-- API BE (MongoDB)
+  - React JS
+  - API BE (MongoDB)
   
 ## Member 👨🏻‍🤝‍👨🏻
   - Hung Nguyen
   - Huynh Le Dac Tai
   
-  
+## Start this project 
+### Checkout to FE branch
+#### Run api
+`php
+npm run api
+`
+### Run project
+`php
+npm start
+`
 ## Screenshots
  
    Coming soon
