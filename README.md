@@ -17,11 +17,11 @@
 ## Start this project 
 ### Checkout to FE branch
 #### Run api
-`php
+`
 npm run api
 `
 ### Run project
-`php
+`
 npm start
 `
 ## Screenshots
