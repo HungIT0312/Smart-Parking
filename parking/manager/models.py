@@ -43,14 +43,10 @@ class Log(models.Model):
 class Slot(models.Model):
     status = models.BigIntegerField(null=False)
     
-class Type(models.Model):
-    type = models.CharField(max_length=255)
-    
 class Image(models.Model):
     name = models.CharField(max_length=255)
     image = CloudinaryField("image")
     date = models.DateTimeField(null=True, auto_now_add=True)
-    type = models.ForeignKey(Type, on_delete=models.CASCADE,null=True)
     
     @property
     def image_url(self):

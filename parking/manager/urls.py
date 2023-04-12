@@ -11,5 +11,6 @@ urlpatterns = [
     path("account/", views.AccountApiView.as_view()),
     path("logs/", views.LogApiView.as_view()),
     path("vehicle/", views.VehicleApiView.as_view()),
-    path("hello-world/", views.HelloWorld.as_view())
+    path("hello-world/", views.HelloWorld.as_view()),
+    path("image-esp/", views.ImageView.as_view())
 ]

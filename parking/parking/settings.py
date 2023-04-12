@@ -127,6 +127,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    
     ),
 }
 
@@ -136,7 +139,8 @@ REST_FRAMEWORK = {
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
+
 
 USE_I18N = True
 

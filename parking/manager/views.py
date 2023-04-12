@@ -2,18 +2,17 @@ import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
-from .models import Account
-from .models import Log
-from .models import Vehicle
-from .serializers import AccountSerializer
-from .serializers import LogSerializer
-from .serializers import VehicleSerializer
-
+from .models import Account, Log, Vehicle, Image
+from .serializers import AccountSerializer, LogSerializer, VehicleSerializer, ImageSerializer
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 
 from cloudinary.uploader import upload
+from django.utils import timezone
+
+import cv2
+
 
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -27,7 +26,7 @@ class HelloWorld(APIView):
         content = {'message': 'Hello, World!'}
         return Response(content)
 
-# Create your views here.
+# API for Account
 
 class AccountApiView(APIView):
     def get(self, request, *args, **kwargs):
@@ -67,6 +66,9 @@ class AccountApiView(APIView):
             account.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    
+# API for Log
+    
 class LogApiView(APIView):
     def get(self, request):
         logs = Log.objects.all()
@@ -80,8 +82,18 @@ class LogApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
+    def delete(self,request):
+        ids = json.loads(request.body)["ids"]    
+        for id in ids:
+            try:
+                account = Log.objects.filter(id=id).first() 
+            except Log.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            account.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
+
+# API for Vehicle
     
 class VehicleApiView(APIView):
     def get(self, request):
@@ -122,6 +134,19 @@ class VehicleApiView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     
-    
+# Get image from esp32
+
+class ImageView(APIView):
+    def post(self, request):
+        serializer = ImageSerializer(data=request.data)
+        if serializer.is_valid():
+            image = request.data.get('image')
+            uploaded_image = upload(image, folder='image/license_plate_upload')
+            serializer.save(image = uploaded_image['secure_url'])
+            return Response(status=201)
+        else:
+            return Response(serializer.errors, status=400)
+        
+        
 def get_home(request):
     return render(request, "home.html")
