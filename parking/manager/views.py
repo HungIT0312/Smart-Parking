@@ -11,7 +11,14 @@ from rest_framework.response import Response
 from cloudinary.uploader import upload
 from django.utils import timezone
 
+import cloudinary
+from cloudinary import CloudinaryImage
+import numpy as np
 import cv2
+import urllib.request
+
+from ModelAI import model_AI, lib_findcontours, lib_detection
+
 
 
 from rest_framework.authentication import BasicAuthentication
@@ -138,15 +145,53 @@ class VehicleApiView(APIView):
 
 class ImageView(APIView):
     def post(self, request):
+        print("HaVE REQUEST")
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
             image = request.data.get('image')
             uploaded_image = upload(image, folder='image/license_plate_upload')
+            
+            # cloudinary_url = uploaded_image['secure_url']
+            cloudinary_url = "https://res.cloudinary.com/dzdfqqdxs/image/upload/v1680857993/image/cars_upload/img_130_z1ed4g.jpg"
+            arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
+            image = cv2.imdecode(arr, -1)
+            
+            license_sample = "30G03916"
+        
+            if image is not None:
+                    
+                text = model_AI.mode_AI(image)
+                print(text)
+                
+                cv2.imshow('Image from Cloudinary', image)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+            else:
+                print('Failed to load image from Cloudinary')   
             serializer.save(image = uploaded_image['secure_url'])
-            return Response(status=201)
+            if text == license_sample:
+                return Response(1,status=201)
+            else:
+                return Response(0, status=400)   
         else:
-            return Response(serializer.errors, status=400)
+            return Response(0, status=400)
         
         
 def get_home(request):
+    # cloudinary_url = "https://res.cloudinary.com/dzdfqqdxs/image/upload/v1680857993/image/cars_upload/img_130_z1ed4g.jpg"
+    # arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
+    # image = cv2.imdecode(arr, -1)
+    
+    # folder_url = 'static/image/'
+    # name_image = "anh12.jpg"
+    # duong_dan_luu = folder_url + name_image
+    # cv2.imwrite(duong_dan_luu, image)
+    # # image = cv2.resize(800,800)
+    # cv2.imshow('Image from Cloudinary', image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    
+    # text = model_AI.mode_AI(image)
+    # print(text)
+    
     return render(request, "home.html")

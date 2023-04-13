@@ -1,11 +1,11 @@
 
 import cv2
 import numpy as np
-from lib_detection import load_model_1, detect_lp, im2single
-from lib_findcontours import segment_characters
+from .lib_detection import load_model_1, detect_lp, im2single
+from .lib_findcontours import segment_characters
 
 def mode_AI(img):
-    wpod_net_path = "wpod-net_update1.json"
+    wpod_net_path = "./File/wpod-net_update1.json"
     wpod_net = load_model_1(wpod_net_path)
 
     # Đọc file ảnh đầu vào
@@ -25,7 +25,7 @@ def mode_AI(img):
     # Cau hinh tham so cho model SVM
     digit_w = 30  # Kich thuoc ki tu
     digit_h = 60  # Kiczh thuoc ki tu
-    model_svm = cv2.ml.SVM_load('svm.xml')
+    model_svm = cv2.ml.SVM_load('./File/svm.xml')
 
     if (len(LpImg)):
 
@@ -58,7 +58,7 @@ def mode_AI(img):
             curr_num = np.array(curr_num, dtype=np.float32)
             curr_num = curr_num.reshape(-1, digit_w * digit_h)
             result = model_svm.predict(curr_num)[1]
-            print(result)
+            # print(result)
             result = int(result[0, 0])
 
             if result <= 9:  # Neu la so thi hien thi luon

@@ -44,7 +44,6 @@ class Slot(models.Model):
     status = models.BigIntegerField(null=False)
     
 class Image(models.Model):
-    name = models.CharField(max_length=255)
     image = CloudinaryField("image")
     date = models.DateTimeField(null=True, auto_now_add=True)
     

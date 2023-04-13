@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'cloudinary',
-    "manager"
+    "manager",
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 MIDDLEWARE.remove('django.middleware.csrf.CsrfViewMiddleware')
@@ -111,6 +113,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
@@ -162,3 +166,5 @@ cloudinary.config(
   api_key = "211321398327785",
   api_secret = "GMTt6Y-lf7If7e_4hRGcF55kMrQ"
 )
+
+ALLOWED_HOSTS = ['*']
