@@ -18,7 +18,7 @@ const License = () => {
     useEffect(() => {
       console.log("get");
       const _getLicense = async () => {
-        const res = await getClientById("111");
+        const res = await getClientById("1");
         setClients(res);
       };
       _getLicense();
@@ -31,7 +31,13 @@ const License = () => {
     <Container className="" style={{ color: Color.paragraph }}>
       <Row className="flex-column flex-sm-row ">
         <Col className="col-sm-12 col-md-6 mt-5" xs={12} md={6}>
-          <Card className="h-100" style={{ boxShadow: Color.cardBoxShadow }}>
+          <Card
+            className="h-100"
+            style={{
+              boxShadow: Color.cardBoxShadow,
+              backgroundColor: Color.cardBackgroundColor,
+            }}
+          >
             <Card.Header
               className="text-center"
               style={{
@@ -44,13 +50,20 @@ const License = () => {
             <Card.Body className="p-3">
               {/* <Card.Title>Vehicle information</Card.Title> */}
               {/* <Card.Img variant="top" src={Clients?.logo} /> */}
-              <Card.Img variant="top" src={Clients?.logo} />
+              <Card.Img
+                variant="top"
+                src={
+                  Clients?.logo ||
+                  "https://cms.luatvietnam.vn/uploaded/Images/Original/2019/01/04/bien-so-xe_0401085240.jpg"
+                }
+              />
+              {/* "https://cms.luatvietnam.vn/uploaded/Images/Original/2019/01/04/bien-so-xe_0401085240.jpg" */}
               <Card.Text>Biển số:{Clients?.LicensePlate}</Card.Text>
             </Card.Body>
           </Card>
         </Col>
         <Col className="col-sm-12 col-md-6 mt-5" xs={12} md={6}>
-          <Card className="h-100 ">
+          <Card className="h-100 " style={{ boxShadow: Color.cardBoxShadow }}>
             <Card.Header
               className="text-center"
               style={{
@@ -115,3 +128,4 @@ const License = () => {
 };
 
 export default License;
+// "https://cms.luatvietnam.vn/uploaded/Images/Original/2019/01/04/bien-so-xe_0401085240.jpg"

@@ -9,7 +9,7 @@ const Manager = () => {
       className=""
       style={{
         backgroundColor: Color.backgroundColor,
-        height: "100vh",
+        minHeight: "100vh",
       }}
     >
       <NavBar />

@@ -1,13 +1,12 @@
 import { Row, Col, Form, Button, Container, Card } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Link } from "react-router-dom";
 import Color from "../constants/colors";
 
 function LoginPage() {
-  const rules = {
-    email: [{ required: true, message: "Vui lòng nhập email!" }],
-    password: [{ required: true, message: "Vui lòng nhập mật khẩu!" }],
-  };
+  // const rules = {
+  //   email: [{ required: true, message: "Vui lòng nhập email!" }],
+  //   password: [{ required: true, message: "Vui lòng nhập mật khẩu!" }],
+  // };
 
   return (
     <Container

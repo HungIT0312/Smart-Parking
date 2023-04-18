@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/iconParking.png";
 import Color from "../constants/colors";
+import "../assets/styles/Nav.scss";
 import { Image, Nav, Navbar } from "react-bootstrap";
-
 const NavBar = () => {
   const [activeLink, setActiveLink] = useState("");
 
@@ -20,8 +20,8 @@ const NavBar = () => {
       to: "/Manager/Parking",
     },
     {
-      name: "Client",
-      to: "/Manager/Client",
+      name: "Clients",
+      to: "/Manager/Clients",
     },
     {
       name: "TimeLog",
@@ -51,7 +51,6 @@ const NavBar = () => {
       bg={Color.navColor}
       expand="lg"
       style={{
-        boxShadow: Color.boxShadow,
         backgroundColor: Color.navColor,
       }}
     >

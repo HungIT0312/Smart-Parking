@@ -40,7 +40,31 @@
     {
       "LicensePlate": "43K143333",
       "logo": "https://i.stack.imgur.com/J96IY.png",
-      "id": "111",
+      "id": "1",
+      "name": "Hưng Hí",
+      "address": "Đà Nẵng",
+      "contact": "0935282111"
+    },
+    {
+      "LicensePlate": "43K143333",
+      "logo": "https://i.stack.imgur.com/J96IY.png",
+      "id": "2",
+      "name": "Hưng Hí",
+      "address": "Đà Nẵng",
+      "contact": "0935282111"
+    },
+    {
+      "LicensePlate": "43K143333",
+      "logo": "https://i.stack.imgur.com/J96IY.png",
+      "id": "3",
+      "name": "Hưng Hí",
+      "address": "Đà Nẵng",
+      "contact": "0935282111"
+    },
+    {
+      "LicensePlate": "43K143333",
+      "logo": "https://i.stack.imgur.com/J96IY.png",
+      "id": "4",
       "name": "Hưng Hí",
       "address": "Đà Nẵng",
       "contact": "0935282111"
@@ -69,7 +93,7 @@
   "Parkings": [
     {
       "slotName": "A1",
-      "status": "Empty"
+      "status": "Full"
     },
     {
       "slotName": "A2",
@@ -82,22 +106,6 @@
     {
       "slotName": "A4",
       "status": "Empty"
-    },
-    {
-      "slotName": "B1",
-      "status": "Empty"
-    },
-    {
-      "slotName": "B2",
-      "status": "Full"
-    },
-    {
-      "slotName": "B3",
-      "status": "Full"
-    },
-    {
-      "slotName": "B4",
-      "status": "Full"
     }
   ]
 }

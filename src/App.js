@@ -4,6 +4,9 @@ import LoginPage from "./Page/Login";
 import Manager from "./Page/Manager/Manager";
 import Error from "./Page/Error/Error";
 import License from "./Layout/Manager/License";
+import ParkingLots from "./Layout/Manager/ParkingLots";
+import Clients from "./Layout/Manager/Clients";
+import TimeLog from "./Layout/Manager/TimeLog";
 
 function App() {
   return (
@@ -13,6 +16,9 @@ function App() {
         <Route path="/Manager" element={<Manager />}>
           <Route path="*" element={<Error />}></Route>
           <Route path="License" element={<License />} />
+          <Route path="Clients" element={<Clients />} />
+          <Route path="TimeLog" element={<TimeLog />} />
+          <Route path="Parking" element={<ParkingLots />} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -21,14 +27,3 @@ function App() {
 //add
 //delete
 export default App;
-{
-  /* <Route path="/Home" element={<ClientsPage />}>
-  <Route path="*" element={<ErrorPage></ErrorPage>}></Route>
-  <Route path="License" element={<LicenseManage Client={Client} />} />
-  <Route path="Parking" element={<Parking Parkings={Parkings} />}></Route>
-  <Route path="Client" element={<ClientManage Client={Client} />}>
-    <Route path="Update" element={<Update />}></Route>
-  </Route>
-  <Route path="TimeLog" element={<TimeInOut TimeLog={TimeLog} />} />
-</Route>; */
-}

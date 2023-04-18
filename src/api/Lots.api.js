@@ -1,6 +1,6 @@
 import http from "../utils/http";
 
-export const getSlots = () => {
+export const getLots = () => {
   return http.get("/Parkings");
 };
 // export const getClientById = (id) => {
