@@ -12,6 +12,8 @@ Smart Parking is a system that helps users find and reserve parking spots intell
 ## Technology used
   - React JS
   - API BE (MongoDB)
+  - AI Python
+  - IOT: sensors
   
 ## Member 👨🏻‍🤝‍👨🏻
   - Hung Nguyen
