@@ -1,5 +1,8 @@
 # Parking Manage
 
+## Overview:
+Smart Parking is a system that helps users find and reserve parking spots intelligently, using technologies such as, IoT, AI, and software...
+
 ## Features: 
   - Sign In/ Sign Up
   - View list User
