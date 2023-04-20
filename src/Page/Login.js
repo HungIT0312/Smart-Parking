@@ -27,7 +27,7 @@ function LoginPage() {
                 <Form.Group controlId="formBasicEmail">
                   <Form.Label>Email address</Form.Label>
                   <Form.Control
-                    type="emaixsl"
+                    type="email"
                     placeholder="Enter email"
                     required
                     message="Vui lòng nhập email!"

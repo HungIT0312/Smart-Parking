@@ -1,33 +1,19 @@
 import React, { useState } from "react";
+import { Image, Nav, Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import logo from "../assets/iconParking.png";
-import Color from "../constants/colors";
 import "../assets/styles/Nav.scss";
-import { Image, Nav, Navbar } from "react-bootstrap";
+import Color from "../constants/colors";
+import routeConf from "../routes/route.js";
+
 const NavBar = () => {
   const [activeLink, setActiveLink] = useState("");
 
   const handleClick = (event) => {
     setActiveLink(event.target.getAttribute("href"));
   };
-  const menu = [
-    {
-      name: "License",
-      to: "/Manager/License",
-    },
-    {
-      name: "Parking",
-      to: "/Manager/Parking",
-    },
-    {
-      name: "Clients",
-      to: "/Manager/Clients",
-    },
-    {
-      name: "TimeLog",
-      to: "/Manager/TimeLog",
-    },
-  ];
+
+  const menu = routeConf;
   const showMenu =
     menu &&
     menu.map((menuItem, index) => {
@@ -53,6 +39,7 @@ const NavBar = () => {
       style={{
         backgroundColor: Color.navColor,
       }}
+      sticky="top"
     >
       <Navbar.Brand href="/Manager/Home">
         <Image

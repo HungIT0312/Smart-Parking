@@ -6,7 +6,7 @@ function Lot(props) {
   const [lot, setLot] = useState(props);
   return (
     <Col xs={6} md={6} lg={6} className="mt-3">
-      <Card style={{ boxShadow: Color.boxShadow }}>
+      <Card style={{ borderColor: "#000" }}>
         <Card.Header
           className="text-center"
           style={{ backgroundColor: Color.cardHead, color: "#fff" }}

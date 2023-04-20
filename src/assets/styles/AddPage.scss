@@ -1,0 +1,16 @@
+
+.boxCon{
+    background-color:rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0px;
+    right: 0px;
+    width: 100%;
+    height: 100%;
+    margin: 0px auto;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

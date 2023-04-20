@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Container, Row, Table } from "react-bootstrap";
 import "../../assets/styles/ButtonRounded.scss";
-import { FaInfo, FaPlus, FaTrashAlt } from "react-icons/fa";
+import { FaInfo, FaPlus } from "react-icons/fa";
 import { getTimeLog } from "../../api/TimeLog.api";
+import "../../assets/styles/BoxShadow.scss";
+
 export default function TimeLog() {
   const [timeLogs, setTimeLogs] = useState([]);
   useEffect(() => {
@@ -12,17 +14,17 @@ export default function TimeLog() {
     };
     _getTimeLog();
   }, []);
-  const handleDelete = (clientId) => {
+  const handleInfor = (clientId) => {
     console.log(clientId);
   };
   return (
     <Container>
       <Col className="h-100">
         <Row className="h-100">
-          <Card className="h-100 mt-5">
+          <Card className="h-100 mt-5 cardShadow">
             <Card.Header className="text-center"> </Card.Header>
             <Card.Body>
-              <Table striped>
+              <Table striped responsive>
                 <thead>
                   <tr className="text-center">
                     <th>#</th>
@@ -38,7 +40,7 @@ export default function TimeLog() {
                     timeLogs.map((timeLog, index) => {
                       return (
                         <tr className="text-center" key={timeLog.id}>
-                          <td>{++index}</td>
+                          <td className="fw-bold">{++index}</td>
                           <td>{timeLog.id}</td>
                           <td>{timeLog.LicensePlate}</td>
                           <td>{timeLog.TimeIn}</td>
@@ -48,7 +50,7 @@ export default function TimeLog() {
                               value={timeLog.id}
                               className="ms-1"
                               onClick={(e) => {
-                                handleDelete(e.target.value);
+                                handleInfor(timeLog.id);
                               }}
                             >
                               <FaInfo></FaInfo>
