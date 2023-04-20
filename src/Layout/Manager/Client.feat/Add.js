@@ -8,7 +8,7 @@ import {
   Image,
   Row,
 } from "react-bootstrap";
-import { redirect, useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { addClient } from "../../../api/Clients.api";
 import "../../../assets/styles/AddPage.scss";
