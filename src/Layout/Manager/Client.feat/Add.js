@@ -47,6 +47,7 @@ export default function Add() {
       setProgress(0);
       const data = await CloudinaryUpload(file, setProgress);
       const src = data?.url;
+      console.log(src);
       if (src) {
         setImageURL(data?.url);
         setProgress(100);
@@ -157,7 +158,7 @@ export default function Add() {
               </Button>
             </Form.Group>
 
-            <ToastContainer position="bottom-left" />
+            <ToastContainer position="bottom-left" autoClose={1000} />
           </Form>
         </Card.Body>
       </Card>

@@ -16,4 +16,19 @@ const routeConf = [
     to: "/Manager/TimeLog",
   },
 ];
-export default routeConf;
+const clientRoute = [
+  {
+    name: "Parking",
+    to: "/Client/Parking",
+  },
+  {
+    name: "Profile",
+    to: "/Client/Profile",
+  },
+  {
+    name: "Log Out",
+    to: "/Client/Login",
+  },
+];
+export { routeConf };
+export { clientRoute };

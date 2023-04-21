@@ -18,7 +18,7 @@ export default function Clients() {
     _getClients();
   }, []);
   const handleDelete = async (clientId) => {
-    toast.success("Delete client successfully !");
+    toast.success("Delete client successfully !", { autoClose: 100 });
     console.log(clientId);
     try {
       await deleteClientsById(clientId);
@@ -98,7 +98,7 @@ export default function Clients() {
         >
           <FaPlus />
         </Button>
-        <ToastContainer position="bottom-left" />
+        <ToastContainer position="bottom-left" autoClose={1000} />
       </Col>
       <Outlet context={[clients, setClients]} />
     </Container>

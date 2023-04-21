@@ -3,8 +3,9 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import NavBar from "../../Components/NavBar";
 import Color from "../../constants/colors";
-import { clientRoute, routeConf } from "../../routes/route";
-const Manager = () => {
+import Authenticate from "../../Components/Auth";
+import { clientRoute } from "../../routes/route";
+const ClientPage = () => {
   return (
     <div
       className=""
@@ -13,10 +14,10 @@ const Manager = () => {
         minHeight: "100vh",
       }}
     >
-      <NavBar route={routeConf} />
+      <NavBar route={clientRoute} />
       <Outlet />
     </div>
   );
 };
 
-export default Manager;
+export default ClientPage;

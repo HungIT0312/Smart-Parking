@@ -22,7 +22,7 @@ const ParkingLots = () => {
   return (
     <Container className="" style={{ minHeight: "75vh" }}>
       <Row className="   mt-5 h-100" style={{ minHeight: "75vh" }}>
-        <Col sm={3} md={6} lg={9}>
+        <Col lg={9}>
           <Card
             className="h-100"
             style={{

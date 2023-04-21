@@ -1,24 +1,27 @@
 import React, { useState } from "react";
-import { Image, Nav, Navbar } from "react-bootstrap";
+import { Container, Image, Nav, Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import logo from "../assets/iconParking.png";
 import "../assets/styles/Nav.scss";
 import Color from "../constants/colors";
-import routeConf from "../routes/route.js";
-
-const NavBar = () => {
+import "../assets/styles/LeftAlign.scss";
+const NavBar = (props) => {
+  const [route, setRoute] = useState(props.route);
   const [activeLink, setActiveLink] = useState("");
 
   const handleClick = (event) => {
     setActiveLink(event.target.getAttribute("href"));
   };
 
-  const menu = routeConf;
+  const menu = route;
   const showMenu =
     menu &&
     menu.map((menuItem, index) => {
       return (
-        <li className="nav-item" key={index}>
+        <li
+          className={`nav-item  ${menuItem.name === "Log Out" ? "lef" : ""}`}
+          key={index}
+        >
           <Link
             className={`nav-link ${
               activeLink === "/Manager/" + menuItem.name ? "active" : ""
@@ -52,8 +55,10 @@ const NavBar = () => {
         />
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="navbarNav" />
-      <Navbar.Collapse id="navbarNav">
-        <Nav className="mr-auto">{showMenu}</Nav>
+      <Navbar.Collapse id="navbarNav ">
+        <Container fluid>
+          <Nav className="">{showMenu}</Nav>
+        </Container>
       </Navbar.Collapse>
     </Navbar>
   );
