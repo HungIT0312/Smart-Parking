@@ -25,11 +25,7 @@ const Error = () => {
                       </p>
                       <form className="mt-5 mb-5">
                         <div className="text-center mb-4 mt-4">
-                          <Link
-                            href="/"
-                            to={"http://localhost:3000/Manager"}
-                            className="btn btn-primary"
-                          >
+                          <Link to={"/Manager"} className="btn btn-primary">
                             Go to Homepage
                           </Link>
                         </div>

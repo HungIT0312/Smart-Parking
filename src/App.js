@@ -10,12 +10,13 @@ import TimeLog from "./Layout/Manager/TimeLog";
 import ClientInfo from "./Layout/Manager/Client.feat/Update";
 import Add from "./Layout/Manager/Client.feat/Add";
 import ClientPage from "./Page/Client/Client";
+import Register from "./Page/Register";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/Login" element={<LoginPage />} />
+        <Route path="/Manager/Login" element={<LoginPage role={1} />} />
         <Route path="/Manager" element={<Manager />}>
           <Route path="*" element={<Error />}></Route>
           <Route path="License" element={<License />} />
@@ -27,6 +28,8 @@ function App() {
           {/* <Route path="Clients/:clientId" element={<ClientInfo />} /> */}
           <Route path="Parking" element={<ParkingLots />} />
         </Route>
+        <Route path="/Client/Login" element={<LoginPage role={2} />}></Route>
+        <Route path="/Client/Register" element={<Register role={2} />}></Route>
         <Route path="/Client" element={<ClientPage />}>
           <Route path="*" element={<Error />}></Route>
           <Route path="Parking" element={<ParkingLots />} />
