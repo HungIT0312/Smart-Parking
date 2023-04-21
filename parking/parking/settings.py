@@ -16,6 +16,11 @@ import cloudinary
 from cloudinary.uploader import upload
 from cloudinary.utils import cloudinary_url
 
+from rest_framework.authentication import TokenAuthentication
+
+
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,6 +50,9 @@ INSTALLED_APPS = [
     'cloudinary',
     "manager",
     'corsheaders',
+    'rest_framework_simplejwt',
+    'rest_framework.authtoken',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -87,7 +95,7 @@ WSGI_APPLICATION = "parking.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'parkingmanage',
+        'NAME': 'parking',
         'USER': 'root',
         'PASSWORD': '22112002',
         'HOST': 'localhost',
@@ -113,6 +121,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "manager.Account"
+
+# AUTHENTICATION_BACKENDS = [
+#     'manager.backends.CustomAuthBackend',
+#     'django.contrib.auth.backends.ModelBackend',
+# ]
+
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 REST_FRAMEWORK = {
@@ -120,11 +136,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.BasicAuthentication',
-    ],
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    #     'rest_framework.authentication.BasicAuthentication',
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ],
     'DEFAULT_PERMISSION_CLASSES': (
-        # 'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -168,3 +185,9 @@ cloudinary.config(
 )
 
 ALLOWED_HOSTS = ['*']
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer", # Hoặc có thể sử dụng các backend khác như Redis
+    },
+}

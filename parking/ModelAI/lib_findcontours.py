@@ -1,6 +1,7 @@
 
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 def sort_contours(cnts):
 
@@ -33,10 +34,11 @@ def find_contours(dimensions, img , sort ,imgContour):
     for cntr in cntrs:
         # detects contour in binary image and returns the coordinates of rectangle enclosing it
         intX, intY, intWidth, intHeight = cv2.boundingRect(cntr)
-
+        perimeter = cv2.arcLength(cntr,True)
         # checking the dimensions of the contour to filter out the characters by contour's size
-        if  intHeight/ii.shape[0]>=0.6:
-            if intWidth > lower_width and intWidth < upper_width and intHeight > lower_height and intHeight < upper_height:
+        if  intHeight/ii.shape[0]>=0.6 and intWidth/ii.shape[0] >= 0.2 and perimeter < 400:
+            # if intWidth > lower_width and intWidth < upper_width and intHeight > lower_height and intHeight < upper_height:
+
                 x_cntr_list.append(
                     intX)  # stores the x coordinate of the character's contour, to used later for indexing the contours
 
@@ -45,8 +47,9 @@ def find_contours(dimensions, img , sort ,imgContour):
                 char = img[intY:intY + intHeight, intX:intX + intWidth]
                 char = cv2.resize(char, (20, 40))
 
+   
                 cv2.rectangle(ii, (intX, intY), (intWidth + intX, intY + intHeight), (50, 21, 200), 2)
-
+                
 
                 # Make result formatted for classification: invert colors
                 char = cv2.subtract(255, char)
@@ -63,7 +66,7 @@ def find_contours(dimensions, img , sort ,imgContour):
 
     # Return characters on ascending order with respect to the x-coordinate (most-left character first)
 
-
+    cv2.imwrite('static/image/contour.jpg',img)
     # arbitrary function that stores sorted list of character indeces
     indices = sorted(range(len(x_cntr_list)), key=lambda k: x_cntr_list[k])
     img_res_copy = []

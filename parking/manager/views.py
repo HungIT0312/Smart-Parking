@@ -9,15 +9,25 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from cloudinary.uploader import upload
+from cloudinary.uploader import rename
 from django.utils import timezone
-
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import permissions
 import cloudinary
 from cloudinary import CloudinaryImage
 import numpy as np
 import cv2
 import urllib.request
 
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate, login
+
+
+
 from ModelAI import model_AI, lib_findcontours, lib_detection
+import cloudinary.utils
+import cloudinary.api
 
 
 
@@ -89,6 +99,18 @@ class LogApiView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    def put(self, request):
+        vehicle = json.loads(request.body)["vehicle"]  
+        try:
+            log = Log.objects.filter(vehicle=vehicle).first()
+        except Log.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = LogSerializer(log, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     def delete(self,request):
         ids = json.loads(request.body)["ids"]    
         for id in ids:
@@ -144,39 +166,82 @@ class VehicleApiView(APIView):
 # Get image from esp32
 
 class ImageView(APIView):
+    permission_classes = (permissions.AllowAny,)
     def post(self, request):
         print("HaVE REQUEST")
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
             image = request.data.get('image')
+
             uploaded_image = upload(image, folder='image/license_plate_upload')
             
-            # cloudinary_url = uploaded_image['secure_url']
-            cloudinary_url = "https://res.cloudinary.com/dzdfqqdxs/image/upload/v1680857993/image/cars_upload/img_130_z1ed4g.jpg"
+            cloudinary_url = uploaded_image['secure_url']
+            # cloudinary_url = "https://res.cloudinary.com/dzdfqqdxs/image/upload/v1681454668/image/license_plate_upload/30F50483%202023-04-14%2006:44:32.154835%2B00:00.jpg.jpg"
             arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
-            image = cv2.imdecode(arr, -1)
+            image = cv2.imdecode(arr, -1) 
             
-            license_sample = "30G03916"
-        
+            folder_url = 'static/image/'
+            name_image = "image-temp.jpg"
+            duong_dan_luu = folder_url + name_image
+            cv2.imwrite(duong_dan_luu, image)
+            
+            license_sample = "43A39565"
+            text = ""
             if image is not None:
-                    
                 text = model_AI.mode_AI(image)
                 print(text)
                 
-                cv2.imshow('Image from Cloudinary', image)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
+                # cv2.imshow('Image from Cloudinary', image)
+                # cv2.waitKey(0)
+                # cv2.destroyAllWindows()
             else:
-                print('Failed to load image from Cloudinary')   
-            serializer.save(image = uploaded_image['secure_url'])
+                print('Failed to load image from Cloudinary')
+            # serializer.save(image = image)
             if text == license_sample:
+                new_filename ="image/license_plate_upload/" + text + " " +  str(timezone.now()) +  ".jpg"
+                uploaded_image = rename(uploaded_image['public_id'], new_filename)
+                serializer.save(name = text,image = uploaded_image['secure_url'])
                 return Response(1,status=201)
             else:
+                text = "undefined-vehicle"
+                new_filename ="image/license_plate_upload/" + text + " " +  str(timezone.now()) +  ".jpg"
+                uploaded_image = rename(uploaded_image['public_id'], new_filename)
+                serializer.save(name = text,image = uploaded_image['secure_url'])
                 return Response(0, status=400)   
         else:
             return Response(0, status=400)
         
-        
+class CustomObtainAuthToken(ObtainAuthToken):
+    serializer_class = AccountSerializer
+    def post(self, request, *args, **kwargs):
+        # Lấy dữ liệu POST request
+        email = request.data.get('email')
+        password = request.data.get('password')
+        print(email + " " + password)
+        # Kiểm tra email và mật khẩu hợp lệ
+        if email is None or password is None:
+            return Response({'error': 'Please provide both username and password'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Lấy tài khoản người dùng
+        user = authenticate(email=email, password=password)
+        print(user)
+
+        if not user:
+            return Response({'error': 'Invalid Credentials'},
+                            status=status.HTTP_404_NOT_FOUND)
+        # Tạo hoặc lấy token xác thực
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
+    
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        return Response(status=200)
+
+          
 def get_home(request):
     # cloudinary_url = "https://res.cloudinary.com/dzdfqqdxs/image/upload/v1680857993/image/cars_upload/img_130_z1ed4g.jpg"
     # arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)

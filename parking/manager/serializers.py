@@ -14,15 +14,25 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = '__all__'
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = Account(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
         
 class LogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
-        fields = '__all__'
+        fields = ('vehicle',)
         
     def create(self, validated_data):
         validated_data['time_in'] = timezone.now()
         return super().create(validated_data)
+    def update(self, instance, validated_data):
+        instance.time_out = timezone.now()
+        instance.save()
+        return instance
         
 class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
