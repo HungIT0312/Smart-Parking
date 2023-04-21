@@ -2,6 +2,7 @@
   "name": "parking",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://hungit0312.github.io/Smart-Parking",
   "dependencies": {
     "@cloudinary/react": "^1.11.2",
     "@cloudinary/url-gen": "^1.10.0",
@@ -12,6 +13,7 @@
     "bootstrap": "^5.2.3",
     "cloudinary": "^1.36.1",
     "cloudinary-react": "^1.8.1",
+    "gh-pages": "^5.0.0",
     "json-server": "^0.17.2",
     "node-sass": "^7.0.3",
     "query-string": "^8.1.0",
@@ -26,6 +28,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "api": "json-server --watch testJson.json --port 3004",
     "start": "react-scripts start",
     "build": "react-scripts build",
