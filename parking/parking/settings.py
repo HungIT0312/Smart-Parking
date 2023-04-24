@@ -40,6 +40,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'rest_framework',
     "django.contrib.admin",
     "django.contrib.auth",
@@ -49,10 +50,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'cloudinary',
     "manager",
-    'corsheaders',
-    'rest_framework_simplejwt',
     'rest_framework.authtoken',
-    'channels',
+
 ]
 
 MIDDLEWARE = [
@@ -63,7 +62,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
+
 ]
 
 MIDDLEWARE.remove('django.middleware.csrf.CsrfViewMiddleware')
@@ -86,7 +85,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "parking.wsgi.application"
+# WSGI_APPLICATION = "parking.wsgi.application"
+
+ASGI_APPLICATION = 'parking.asgi.application'
 
 
 # Database
@@ -129,17 +130,12 @@ AUTH_USER_MODEL = "manager.Account"
 # ]
 
 
-CORS_ORIGIN_ALLOW_ALL = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     'rest_framework.authentication.BasicAuthentication',
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ],
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
@@ -186,8 +182,12 @@ cloudinary.config(
 
 ALLOWED_HOSTS = ['*']
 
+# # trong file settings.py
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer", # Hoặc có thể sử dụng các backend khác như Redis
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'CONFIG': {
+            # "hosts": ["127.0.0.1", "6379"],
+        },
     },
 }

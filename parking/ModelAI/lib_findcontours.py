@@ -49,7 +49,7 @@ def find_contours(dimensions, img , sort ,imgContour):
 
    
                 cv2.rectangle(ii, (intX, intY), (intWidth + intX, intY + intHeight), (50, 21, 200), 2)
-                
+                plt.imshow(ii, cmap='gray')
 
                 # Make result formatted for classification: invert colors
                 char = cv2.subtract(255, char)
@@ -65,7 +65,6 @@ def find_contours(dimensions, img , sort ,imgContour):
 
 
     # Return characters on ascending order with respect to the x-coordinate (most-left character first)
-
     cv2.imwrite('static/image/contour.jpg',img)
     # arbitrary function that stores sorted list of character indeces
     indices = sorted(range(len(x_cntr_list)), key=lambda k: x_cntr_list[k])
