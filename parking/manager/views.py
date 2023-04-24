@@ -320,7 +320,6 @@ class CustomObtainAuthToken(ObtainAuthToken):
 
         # Lấy tài khoản người dùng
         user = authenticate(email=email, password=password)
-        print(user)
 
         if not user:
             return Response({'error': 'Invalid Credentials'},
