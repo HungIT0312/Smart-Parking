@@ -34,7 +34,7 @@ SECRET_KEY = "django-insecure-hv+ec^8wcq4*=^1++-q@h6rc-w&*dn#j#4$@oorvbpnzn2ght1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -180,7 +180,7 @@ cloudinary.config(
   api_secret = "GMTt6Y-lf7If7e_4hRGcF55kMrQ"
 )
 
-ALLOWED_HOSTS = ['*']
+
 
 # # trong file settings.py
 CHANNEL_LAYERS = {
