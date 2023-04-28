@@ -9,7 +9,7 @@ from .models import (
 )
 
 from django.utils import timezone
-
+from datetime import timedelta
 
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,13 +25,13 @@ class AccountSerializer(serializers.ModelSerializer):
 class LogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
-        fields = ('vehicle',)
+        fields = ('vehicle','image_in')
         
     def create(self, validated_data):
-        validated_data['time_in'] = timezone.now()
+        validated_data['time_in'] = timezone.now() + timedelta(hours=7)
         return super().create(validated_data)
     def update(self, instance, validated_data):
-        instance.time_out = timezone.now()
+        instance.time_out = timezone.now() + timedelta(hours=7)
         instance.save()
         return instance
 
