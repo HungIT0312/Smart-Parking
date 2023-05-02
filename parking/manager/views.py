@@ -114,7 +114,7 @@ class LogApiView(APIView):
             image = request.data.get('image')
             
             # upload ảnh lên cloud
-            uploaded_image = upload(image, folder='image/license_plate_upload')
+            uploaded_image = upload(image, folder='image/cars-checkin')
             
             # lấy link ảnh
             cloudinary_url = uploaded_image['secure_url']
@@ -164,14 +164,14 @@ class LogApiView(APIView):
                     logSerializer.save()
 
             if resultDetection == license_sample:
-                new_filename ="image/license_plate_upload/" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
+                new_filename ="image/cars-checkin/" + "check in-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
                 return Response(1,status=201)
                 
             else:
                 resultDetection = resultDetection + "(unregister)"
-                new_filename ="image/license_plate_upload/" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
+                new_filename ="image/cars-checkin/" + "check in-" +resultDetection + " " +  str(timezone.now()) +  ".jpg"
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
                 return Response(0, status=400)   
@@ -181,21 +181,37 @@ class LogApiView(APIView):
     
     def put(self, request):
         # xử lí checkout ....
-        text = "30E94515"
-        my_data = {'vehicle': text}
+        serializer = ImageSerializer(data=request.data)
+        resultDetection = ""
+        if serializer.is_valid():
+            image = request.data.get('image')
+            uploaded_image = upload(image, folder='image/cars-checkout')
+            cloudinary_url = uploaded_image['secure_url']
+            arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
+            image = cv2.imdecode(arr, -1) 
+            
+            # folder_url = 'static/image/'
+            # name_image = "image-temp.jpg"
+            # duong_dan_luu = folder_url + name_image
+            # cv2.imwrite(duong_dan_luu, image)
+            
+
+            if image is not None:
+                resultDetection = model_AI.mode_AI(image)
+            else:
+                print('Failed to load image from Cloudinary')
+        
+        my_data = {'vehicle': resultDetection}
         vehicle = my_data['vehicle']
         try:
             log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
-            print('before:')
-            print(log)
         except Log.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = LogSerializer(log, data=my_data, partial=True)
         if serializer.is_valid():
+            new_filename ="image/cars-checkout/" + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
+            uploaded_image = rename(uploaded_image['public_id'], new_filename)
             serializer.save()
-            log = Log.objects.filter(vehicle=vehicle).first()
-            print('after: ->>')
-            print(log)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
