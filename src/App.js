@@ -1,15 +1,15 @@
-import "./App.css";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import LoginPage from "./Page/Login";
-import Manager from "./Page/Manager/Manager";
-import Error from "./Page/Error/Error";
+import "./App.css";
+import Add from "./Layout/Manager/Client.feat/Add";
+import ClientInfo from "./Layout/Manager/Client.feat/Update";
+import Clients from "./Layout/Manager/Clients";
 import License from "./Layout/Manager/License";
 import ParkingLots from "./Layout/Manager/ParkingLots";
-import Clients from "./Layout/Manager/Clients";
 import TimeLog from "./Layout/Manager/TimeLog";
-import ClientInfo from "./Layout/Manager/Client.feat/Update";
-import Add from "./Layout/Manager/Client.feat/Add";
 import ClientPage from "./Page/Client/Client";
+import Error from "./Page/Error/Error";
+import LoginPage from "./Page/Login";
+import Manager from "./Page/Manager/Manager";
 import Register from "./Page/Register";
 
 function App() {
@@ -25,7 +25,6 @@ function App() {
           </Route>
           <Route path="Clients/:clientId" element={<ClientInfo />} />
           <Route path="TimeLog" element={<TimeLog />} />
-          {/* <Route path="Clients/:clientId" element={<ClientInfo />} /> */}
           <Route path="Parking" element={<ParkingLots />} />
         </Route>
         <Route path="/Client/Login" element={<LoginPage role={2} />}></Route>
@@ -34,7 +33,6 @@ function App() {
           <Route path="*" element={<Error />}></Route>
           <Route path="Parking" element={<ParkingLots />} />
         </Route>
-
         <Route path="*" element={<Navigate to="/Client" replace />} />
       </Routes>
     </BrowserRouter>

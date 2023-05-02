@@ -12,6 +12,7 @@
     "bootstrap": "^5.2.3",
     "cloudinary": "^1.36.1",
     "cloudinary-react": "^1.8.1",
+    "dotenv": "^16.0.3",
     "gh-pages": "^5.0.0",
     "json-server": "^0.17.2",
     "node-sass": "^7.0.3",

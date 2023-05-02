@@ -1,11 +1,11 @@
 import axios from "axios";
-// import { API_URL, API_KEY } from "@env";
+// import { REACT_APP_API_KEY, REACT_APP_API_URL } from "@env";
 // console.log(API_URL);
 
 class Http {
   constructor() {
     this.instance = axios.create({
-      baseURL: "http://localhost:3004/",
+      baseURL: "http://192.168.5.230:8000/",
       name: "Parking",
       timeout: 10000,
       headers: {
@@ -26,6 +26,10 @@ class Http {
     );
     this.instance.interceptors.request.use(
       (config) => {
+        const token = sessionStorage.getItem("tokenAd");
+        if (token) {
+          config.headers["Authorization"] = `Token ${token}`;
+        }
         return config;
       },
       (error) => {
