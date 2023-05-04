@@ -39,6 +39,8 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 
+checkin_path = "image/cars-checkin/"
+checkout_path = "image/cars-checkout/"
 class HelloWorld(APIView):
     # authentication_classes = [BasicAuthentication]
     # permission_classes = [IsAuthenticated]
@@ -114,7 +116,7 @@ class LogApiView(APIView):
             image = request.data.get('image')
             
             # upload ảnh lên cloud
-            uploaded_image = upload(image, folder='image/cars-checkin')
+            uploaded_image = upload(image, folder=checkin_path)
             
             # lấy link ảnh
             cloudinary_url = uploaded_image['secure_url']
@@ -128,7 +130,7 @@ class LogApiView(APIView):
             duong_dan_luu = folder_url + name_image
             cv2.imwrite(duong_dan_luu, image)
             
-            license_sample = "30E94515"
+
             resultDetection = ""
             if image is not None:
                 resultDetection = model_AI.mode_AI(image)
@@ -162,19 +164,18 @@ class LogApiView(APIView):
             else:
                 if logSerializer.is_valid():
                     logSerializer.save()
-
-            if resultDetection == license_sample:
-                new_filename ="image/cars-checkin/" + "check in-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
+            license_sample = Vehicle.objects.filter(license_plate = resultDetection).first()
+            if license_sample is not None:
+                new_filename =checkin_path + "check in-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
                 return Response(1,status=201)
-                
             else:
                 resultDetection = resultDetection + "(unregister)"
-                new_filename ="image/cars-checkin/" + "check in-" +resultDetection + " " +  str(timezone.now()) +  ".jpg"
+                new_filename =checkin_path + "check in-" +resultDetection + " " +  str(timezone.now()) +  ".jpg"
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
-                return Response(0, status=400)   
+                return Response(0, status=400)                 
         else:
             return Response(0, status=400)
         
@@ -209,7 +210,7 @@ class LogApiView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = LogSerializer(log, data=my_data, partial=True)
         if serializer.is_valid():
-            new_filename ="image/cars-checkout/" + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
+            new_filename =checkout_path + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
             uploaded_image = rename(uploaded_image['public_id'], new_filename)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
