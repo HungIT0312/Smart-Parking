@@ -82,16 +82,16 @@ class AccountApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self,request):
+        ids = json.loads(request.body)["ids"]
+        print(ids)
         try:
-            ids = json.loads(request.body)["ids"]
-            if not isinstance(ids, list):
-                return Response({"error": "The ids parameter must be a list."}, status=status.HTTP_400_BAD_REQUEST)
-            for id in ids:
-                try:
-                    account = Account.objects.filter(id=id).first() 
-                except Account.DoesNotExist:
-                    return Response("Account not found",status=status.HTTP_404_NOT_FOUND)
-                account.delete()
+            # if not isinstance(ids, list):
+            #     return Response({"error": "The ids parameter must be a list."}, status=status.HTTP_400_BAD_REQUEST)
+            account = Account.objects.filter(id=ids).first()
+            print(account)
+            # if Account.DoesNotExist:
+            #     return Response("Account not found",status=status.HTTP_404_NOT_FOUND)
+            account.delete()
             return Response("Delete successfully",status=status.HTTP_204_NO_CONTENT)
         except json.JSONDecodeError:
             return Response({"error": "Invalid JSON data."}, status=status.HTTP_400_BAD_REQUEST)
@@ -133,7 +133,10 @@ class LogApiView(APIView):
 
             resultDetection = ""
             if image is not None:
-                resultDetection = model_AI.mode_AI(image)
+                try:
+                    resultDetection = model_AI.mode_AI(image)
+                except:
+                    return Response(0,status=201)
                 # cv2.imshow('Image from Cloudinary', image)
                 # cv2.waitKey(0)
                 # cv2.destroyAllWindows()
@@ -192,7 +195,7 @@ class LogApiView(APIView):
             image = cv2.imdecode(arr, -1) 
             
             # folder_url = 'static/image/'
-            # name_image = "image-temp.jpg"
+            # name_image = "checkout.jpg"
             # duong_dan_luu = folder_url + name_image
             # cv2.imwrite(duong_dan_luu, image)
             
@@ -207,14 +210,14 @@ class LogApiView(APIView):
         try:
             log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
         except Log.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(0,status=status.HTTP_404_NOT_FOUND)
         serializer = LogSerializer(log, data=my_data, partial=True)
         if serializer.is_valid():
             new_filename =checkout_path + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
             uploaded_image = rename(uploaded_image['public_id'], new_filename)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(1 ,status=status.HTTP_201_CREATED)
+        return Response(0 ,status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self,request):
         ids = json.loads(request.body)["ids"]    
@@ -226,28 +229,6 @@ class LogApiView(APIView):
             account.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-# API for Slot
-class SlotApiView(APIView):
-    permission_classes = (permissions.AllowAny,)
-    def put(self, request):
-        count = 1
-        var1 = request.PUT.get('var1')
-        var2 = request.PUT.get('var2')
-        var3 = request.PUT.get('var3')
-        var4 = request.PUT.get('var4')
-        varList = [var1,var2,var3,var4]
-        for var in varList:
-           if count==4:
-            try:
-                slot = Slot.objects.filter(id=count).first()
-                count+=1
-            except Slot.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            serializer = SlotSerializer(slot, data=var)
-            if serializer.is_valid():
-                serializer.save()
-        count=1
-        return Response(status=status.HTTP_200_OK)
     
 class SlotUpdate(APIView):
     permission_classes = (permissions.AllowAny,)

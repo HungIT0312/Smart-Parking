@@ -4,8 +4,7 @@ from .models import (
     Account,
     Log,
     Vehicle,
-    Image,
-    Slot
+    Image
 )
 
 from django.utils import timezone
@@ -34,11 +33,6 @@ class LogSerializer(serializers.ModelSerializer):
         instance.time_out = timezone.now() + timedelta(hours=7)
         instance.save()
         return instance
-
-class SlotSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Slot
-        fields = '__all__'
         
 class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
