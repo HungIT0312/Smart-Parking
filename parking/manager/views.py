@@ -62,9 +62,22 @@ class AccountApiView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
+        email = json.loads(request.body)["email"]
+        plate = json.loads(request.body)["license_plate"]
+        vehicle_pic = json.loads(request.body)["vehicle_pic"]
         serializer = AccountSerializer(data=request.data)
+
         if serializer.is_valid():
             serializer.save()
+            account = Account.objects.filter(email=email).first()
+            my_data = {'license_plate': plate,
+                       'vehicle_pic': vehicle_pic,
+                       "user": account.id}
+            vehicleSerializer = VehicleSerializer(data=my_data)
+            if vehicleSerializer.is_valid():
+                vehicleSerializer.save()
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -72,9 +85,9 @@ class AccountApiView(APIView):
         id = json.loads(request.body)["id"]
         try:
             account = Account.objects.filter(id=id).first()
+
         except Account.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
         serializer = AccountSerializer(account, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -83,16 +96,20 @@ class AccountApiView(APIView):
     
     def delete(self,request):
         ids = json.loads(request.body)["ids"]
-        print(ids)
         try:
-            # if not isinstance(ids, list):
-            #     return Response({"error": "The ids parameter must be a list."}, status=status.HTTP_400_BAD_REQUEST)
-            account = Account.objects.filter(id=ids).first()
-            print(account)
-            # if Account.DoesNotExist:
-            #     return Response("Account not found",status=status.HTTP_404_NOT_FOUND)
-            account.delete()
-            return Response("Delete successfully",status=status.HTTP_204_NO_CONTENT)
+            if not isinstance(ids, list):
+                return Response({"error": "The ids parameter must be a list."}, status=status.HTTP_400_BAD_REQUEST)
+            for id in ids:
+                try:
+                    account = Account.objects.filter(id=id).first()
+                    vehicle = Vehicle.objects.filter(user=id).first()
+                except Account.DoesNotExist:
+                    return Response("Account not found",status=status.HTTP_404_NOT_FOUND)
+                except Vehicle.DoesNotExist:
+                    return Response("Vehicle not found",status=status.HTTP_404_NOT_FOUND)
+                vehicle.delete()
+                account.delete()          
+            return Response("Delete successfully",status=201)
         except json.JSONDecodeError:
             return Response({"error": "Invalid JSON data."}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
@@ -223,10 +240,10 @@ class LogApiView(APIView):
         ids = json.loads(request.body)["ids"]    
         for id in ids:
             try:
-                account = Log.objects.filter(id=id).first() 
+                log = Log.objects.filter(id=id).first() 
             except Log.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            account.delete()
+            log.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     
@@ -254,110 +271,50 @@ class SlotUpdate(APIView):
         return Response(status=status.HTTP_200_OK)
         
 
-# API for Vehicle
+# # API for Vehicle
     
-class VehicleApiView(APIView):
-    def get(self, request):
-        license_plate = self.request.query_params.get('license_plate', None)
-        if license_plate is None:
-            vehicles = Vehicle.objects.all()
-        else:
-            vehicles = Vehicle.objects.filter(license_plate=license_plate)
-        serializer = VehicleSerializer(vehicles, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# class VehicleApiView(APIView):
+#     def get(self, request):
+#         license_plate = self.request.query_params.get('license_plate', None)
+#         if license_plate is None:
+#             vehicles = Vehicle.objects.all()
+#         else:
+#             vehicles = Vehicle.objects.filter(license_plate=license_plate)
+#         serializer = VehicleSerializer(vehicles, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def post(self, request):
-        serializer = VehicleSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request):
+#         serializer = VehicleSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def put(self,request):
-        id = json.loads(request.body)["license_plate"]
-        try:
-            account = Vehicle.objects.filter(license_plate=id).first()
-        except Vehicle.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+#     def put(self,request):
+#         id = json.loads(request.body)["license_plate"]
+#         try:
+#             account = Vehicle.objects.filter(license_plate=id).first()
+#         except Vehicle.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = VehicleSerializer(account, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         serializer = VehicleSerializer(account, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def delete(self,request):
-        license_plates = json.loads(request.body)["license_plates"]
-        for license_plate in license_plates:
-            try:
-                account = Vehicle.objects.filter(license_plate=license_plate).first() 
-            except Vehicle.DoesNotExist:
-                return Response("Vehicle does not exist",status=status.HTTP_404_NOT_FOUND)
-            account.delete()
-        return Response("Delete successfully",status=status.HTTP_204_NO_CONTENT)
+#     def delete(self,request):
+#         license_plates = json.loads(request.body)["license_plates"]
+#         for license_plate in license_plates:
+#             try:
+#                 account = Vehicle.objects.filter(license_plate=license_plate).first() 
+#             except Vehicle.DoesNotExist:
+#                 return Response("Vehicle does not exist",status=status.HTTP_404_NOT_FOUND)
+#             account.delete()
+#         return Response("Delete successfully",status=status.HTTP_204_NO_CONTENT)
     
     
-# Get image from esp32
-class ImageView(APIView):
-    permission_classes = (permissions.AllowAny,)
-    def post(self, request):
-        print("HaVE REQUEST")
-        serializer = ImageSerializer(data=request.data)
-        if serializer.is_valid():
-            image = request.data.get('image')
-            
-            # upload ảnh lên cloud
-            uploaded_image = upload(image, folder='image/license_plate_upload')
-            
-            # lấy link ảnh
-            cloudinary_url = uploaded_image['secure_url']
-            # cloudinary_url = "https://res.cloudinary.com/dzdfqqdxs/image/upload/v1681454668/image/license_plate_upload/30F50483%202023-04-14%2006:44:32.154835%2B00:00.jpg.jpg"
-            arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
-            image = cv2.imdecode(arr, -1) 
-            
-            # lưu ảnh vào thư mục
-            folder_url = 'static/image/'
-            name_image = "image-temp.jpg"
-            duong_dan_luu = folder_url + name_image
-            cv2.imwrite(duong_dan_luu, image)
-            
-            license_sample = "43A39565"
-            text = ""
-            if image is not None:
-                text = model_AI.mode_AI(image)
 
-                
-                # cv2.imshow('Image from Cloudinary', image)
-                # cv2.waitKey(0)
-                # cv2.destroyAllWindows()
-            else:
-                print('Failed to load image from Cloudinary')
-                
-            # websocket
-            print(text)
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-            "test_channel",
-            {
-                "type": "connection_established",
-                "message": cloudinary_url
-            }
-            )
-            
-            if text == license_sample:
-                new_filename ="image/license_plate_upload/" + text + " " +  str(timezone.now()) +  ".jpg"
-                uploaded_image = rename(uploaded_image['public_id'], new_filename)
-                serializer.save(name = text,image = uploaded_image['secure_url'])
-                return Response(1,status=201)
-            else:
-                text = "undefined-vehicle"
-                new_filename ="image/license_plate_upload/" + text + " " +  str(timezone.now()) +  ".jpg"
-                uploaded_image = rename(uploaded_image['public_id'], new_filename)
-                serializer.save(name = text,image = uploaded_image['secure_url'])
-                return Response(0, status=400)   
-        else:
-            return Response(0, status=400)
-        
 class CustomObtainAuthToken(ObtainAuthToken):
     serializer_class = AccountSerializer
     def post(self, request, *args, **kwargs):
@@ -391,20 +348,4 @@ class LogoutView(APIView):
 
           
 def get_home(request):
-    # cloudinary_url = "https://res.cloudinary.com/dzdfqqdxs/image/upload/v1680857993/image/cars_upload/img_130_z1ed4g.jpg"
-    # arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
-    # image = cv2.imdecode(arr, -1)
-    
-    # folder_url = 'static/image/'
-    # name_image = "anh12.jpg"
-    # duong_dan_luu = folder_url + name_image
-    # cv2.imwrite(duong_dan_luu, image)
-    # # image = cv2.resize(800,800)
-    # cv2.imshow('Image from Cloudinary', image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    
-    # text = model_AI.mode_AI(image)
-    # print(text)
-    
     return render(request, "home.html")
