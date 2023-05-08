@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Container, Row, Table } from "react-bootstrap";
 
-import { deleteAccount, getAccountById, getAllAcount } from "../../api/Manager/Account.api";
+import { deleteAccount,  getAllAcount } from "../../api/Manager/Account.api";
 import "../../assets/styles/ButtonRounded.scss";
 import { FaInfo, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -108,7 +108,7 @@ export default function Clients() {
         >
           <FaPlus />
         </Button>
-        <ToastContainer position="bottom-left" />
+        {/* <ToastContainer position="bottom-left" /> */}
       </Col>
       <Outlet context={[clients, setClients]} />
     </Container>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { updateAccount , getAccountById, getAccount} from "../../../api/Manager/Account.api";
+import { updateAccount , getAccount} from "../../../api/Manager/Account.api";
 import {
   Button,
   Card,
@@ -15,14 +15,16 @@ import "react-toastify/dist/ReactToastify.css";
 import "../../../assets/styles/BoxShadow.scss";
 export default function ClientInfo() {
   const [client, setClient] = useState({});
+  const [vehicle, setVehicle] = useState({});
   const { clientId } = useParams();
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     const _getClient = async () => {
       const res = await getAccount(clientId);
-      setClient(res[0]);
-      console.log(res[0]);
+      console.log(res.user[0]);
+      setClient(res.user[0]);
+      setVehicle(res.vehicle[0]);
     };
     _getClient();
 
@@ -32,10 +34,11 @@ export default function ClientInfo() {
     if (isEditing) {
       try {
         const _updateClient = async () => {
-          const res = await updateAccount(clientId, client);
+          console.log(client);
+          const res = await updateAccount( client);
           setClient(res);
           toast.success("Client information updated successfully!");
-          console.log(res);
+          navigate(-1)
         };
         _updateClient();
       } catch (error) {
@@ -98,58 +101,63 @@ export default function ClientInfo() {
                   <Form.Control
                     type="text"
                     placeholder="Address"
-                    readOnly={!isEditing}
+                    readOnly
                     value={client.email}
                     onChange={(e) =>
                       setClient({ ...client, email: e.target.value })
                     }
                   />
                 </Form.Group>
-                {/* <Form.Group controlId="formLicense">
-                  <Form.Label>LicensePlate</Form.Label>
+                <Form.Group controlId="formLicense">
+                  <Form.Label>Date Joined</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="LicensePlate"
                     readOnly
-                    value={client?.LicensePlate}
+                    value={client?.date_joined}
                   />
                 </Form.Group>
                 <Form.Group controlId="formContact">
-                  <Form.Label>Contact</Form.Label>
+                  <Form.Label>License Plate</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Contact"
-                    readOnly={!isEditing}
-                    value={client?.contact}
+                    placeholder="License Plate"
+                    readOnly
+                    value={vehicle?.license_plate}
                     onChange={(e) =>
                       setClient({ ...client, contact: e.target.value })
                     }
                   />
-                </Form.Group> */}
-                {/* <Form.Group controlId="formLogo">
-                  <Form.Label>Image</Form.Label>
                 </Form.Group>
-                <Image
-                  width="400"
-                  thumbnail
-                  fluid
-                  src={client?.logo}
-                  className="mb-3"
-                ></Image> */}
+                <Form.Group controlId="formContact">
+                  <Form.Label>Parking Fee</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Parking Fee"
+                    readOnly
+                    value={client?.parking_fee}
+                    onChange={(e) =>
+                      setClient({ ...client, contact: e.target.value })
+                    }
+                  />
+                </Form.Group>
+                
                 <Form.Group
                   className="d-flex justify-content-center"
                   controlId="formLogo"
                 >
                   <Button
+                  className="mt-3"
                     onClick={() => {
                       handleEditClick();
                     }}
+                    
                   >
                     {isEditing ? "Submit" : "Edit"}
                   </Button>
                   <Button
-                    variant="light"
-                    className="ms-2"
+                    variant="danger"
+                    className="mt-3 mx-2"
                     onClick={() => navigate(-1)}
                   >
                     Back
@@ -157,7 +165,7 @@ export default function ClientInfo() {
                 </Form.Group>
               </Form>
             </Card.Body>
-            <ToastContainer position="top-right" />
+            {/* <ToastContainer position="top-right" /> */}
           </Card>
         </Row>
       </Col>
