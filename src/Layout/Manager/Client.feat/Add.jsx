@@ -31,13 +31,14 @@ export default function Add() {
     last_name,
     email,
     is_staff,
-    LicensePlate: licensePlate,
+    license_plate: licensePlate,
     password,
-    logo: imageURL,
+    vehicle_pic: imageURL,
   };
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      console.log(params);
       await addAccount(params);
       await toast.success("Add client successfully !");
       setClients([...clients, params]);

@@ -1,7 +1,10 @@
 import http from "../../utils/http";
 
-export const getAccountById = (id) => {
-  return http.get(`/manager/account/`, id);
+export const getAllAcount = () => {
+  return http.get(`/manager/account/`);
+};
+export const getAccount = (id) => {
+  return http.get(`/manager/account/?id=${id}`);
 };
 export const addAccount = (data) => {
   return http.post("/manager/account/", data);

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getClientById, updateClient } from "../../../api/Clients.api";
+import { updateAccount , getAccountById, getAccount} from "../../../api/Manager/Account.api";
 import {
   Button,
   Card,
   Col,
   Container,
   Form,
-  Image,
+  // Image,
   Row,
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
@@ -20,17 +20,19 @@ export default function ClientInfo() {
   const navigate = useNavigate();
   useEffect(() => {
     const _getClient = async () => {
-      const res = await getClientById(clientId);
-      setClient(res);
+      const res = await getAccount(clientId);
+      setClient(res[0]);
+      console.log(res[0]);
     };
     _getClient();
-  }, [clientId]);
+
+  }, []);
   const handleEditClick = () => {
     setIsEditing((prevState) => !prevState);
     if (isEditing) {
       try {
         const _updateClient = async () => {
-          const res = await updateClient(clientId, client);
+          const res = await updateAccount(clientId, client);
           setClient(res);
           toast.success("Client information updated successfully!");
           console.log(res);
@@ -56,37 +58,54 @@ export default function ClientInfo() {
                   <Form.Label>ID</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Client's name"
                     readOnly
-                    value={client?.id}
+                    value={client.id}
                   />
                 </Form.Group>
                 <Form.Group controlId="formName">
-                  <Form.Label>Name</Form.Label>
+                 <Row>
+
+                 
+                    <Col>
+                    <Form.Label>First Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Client's first name"
+                    readOnly={!isEditing}
+                    value={client.first_name}
+                    onChange={(e) =>
+                      setClient({ ...client, first_name: e.target.value })
+                    }
+                  />
+                    </Col>
+                    <Col>
+                    <Form.Label>Last Name</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Client's name"
                     readOnly={!isEditing}
-                    value={client?.name}
+                    value={client.last_name}
                     onChange={(e) =>
-                      setClient({ ...client, name: e.target.value })
+                      setClient({ ...client, last_name: e.target.value })
                     }
                   />
+                  </Col>
+                 </Row>
                 </Form.Group>
 
                 <Form.Group controlId="formAddress">
-                  <Form.Label>Address</Form.Label>
+                  <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Address"
                     readOnly={!isEditing}
-                    value={client?.address}
+                    value={client.email}
                     onChange={(e) =>
-                      setClient({ ...client, address: e.target.value })
+                      setClient({ ...client, email: e.target.value })
                     }
                   />
                 </Form.Group>
-                <Form.Group controlId="formLicense">
+                {/* <Form.Group controlId="formLicense">
                   <Form.Label>LicensePlate</Form.Label>
                   <Form.Control
                     type="text"
@@ -106,8 +125,8 @@ export default function ClientInfo() {
                       setClient({ ...client, contact: e.target.value })
                     }
                   />
-                </Form.Group>
-                <Form.Group controlId="formLogo">
+                </Form.Group> */}
+                {/* <Form.Group controlId="formLogo">
                   <Form.Label>Image</Form.Label>
                 </Form.Group>
                 <Image
@@ -116,7 +135,7 @@ export default function ClientInfo() {
                   fluid
                   src={client?.logo}
                   className="mb-3"
-                ></Image>
+                ></Image> */}
                 <Form.Group
                   className="d-flex justify-content-center"
                   controlId="formLogo"

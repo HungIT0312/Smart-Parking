@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Container, Row, Table } from "react-bootstrap";
 
-import { deleteAccount, getAccountById } from "../../api/Manager/Account.api";
+import { deleteAccount, getAccountById, getAllAcount } from "../../api/Manager/Account.api";
 import "../../assets/styles/ButtonRounded.scss";
 import { FaInfo, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -13,14 +13,19 @@ export default function Clients() {
   const navigate = useNavigate();
   useEffect(() => {
     const _getClients = async () => {
-      const res = await getAccountById();
+      const res = await getAllAcount();
       setClients(res);
     };
     _getClients();
   }, []);
   const handleDelete = async (clientId) => {
     try {
-      await deleteAccount(clientId);
+      let ids = {
+        "ids" :[clientId],
+      }
+      
+      console.log(ids);
+      await deleteAccount(ids);
       const newClients = clients.filter((client) => client.id !== clientId);
       setClients(newClients);
       toast.success("Delete client successfully !", { autoClose: 2000 });
