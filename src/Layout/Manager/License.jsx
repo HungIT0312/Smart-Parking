@@ -10,16 +10,17 @@ import {
   FormLabel,
   Row,
   Form,
+  Image,
 } from "react-bootstrap";
 import Color from "../../constants/colors.js";
+import image from "../../assets/imagePlaceHolder.png";
 const License = () => {
-  const [Clients, setClients] = useState("");
+  const [Clients, setClients] = useState();
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const newSocket = new WebSocket("ws://192.168.5.234:8000/ws/test_channel/");
     setSocket(newSocket);
-    console.log(newSocket);
 
     return () => {
       newSocket.close();
@@ -33,7 +34,9 @@ const License = () => {
     };
 
     socket.onmessage = (event) => {
-      console.log("Nhận dữ liệu từ máy chủ: " + event.data);
+      const data = JSON.parse(event.data);
+      console.log(data.message);
+      event && setClients(data.message);
     };
 
     socket.onclose = () => {
@@ -72,18 +75,8 @@ const License = () => {
             >
               Vehicle information
             </Card.Header>
-            <Card.Body className="p-3">
-              {/* <Card.Title>Vehicle information</Card.Title> */}
-              {/* <Card.Img variant="top" src={Clients?.logo} /> */}
-              <Card.Img
-                variant="top"
-                src={
-                  Clients?.logo ||
-                  "https://cms.luatvietnam.vn/uploaded/Images/Original/2019/01/04/bien-so-xe_0401085240.jpg"
-                }
-              />
-              {/* "https://cms.luatvietnam.vn/uploaded/Images/Original/2019/01/04/bien-so-xe_0401085240.jpg" */}
-              <Card.Text>Biển số:{Clients?.LicensePlate}</Card.Text>
+            <Card.Body className="p-3 d-flex justify-content-center ">
+              <Image src={Clients?.image || image} thumbnail fluid />
             </Card.Body>
           </Card>
         </Col>
@@ -100,40 +93,57 @@ const License = () => {
             </Card.Header>
             <Card.Body className="p-5">
               <Form name="formManage">
-                <FormGroup controlId="formBasicName">
-                  <FormLabel>Name</FormLabel>
-                  <FormControl
+                <Form.Group controlId="formBasicEmail">
+                  <Row>
+                    <Col>
+                      <Form.Label>First Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter first name"
+                        required
+                        value={Clients?.first_name}
+                      />
+                    </Col>
+                    <Col>
+                      <Form.Label>Last Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter first name"
+                        required
+                        value={Clients?.last_name}
+                      />
+                    </Col>
+                  </Row>
+                </Form.Group>
+                <Form.Group controlId="formBasicEmail">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
                     type="text"
-                    placeholder="name"
-                    value={Clients?.name}
+                    placeholder="Email"
+                    value={Clients?.email}
+                    required
                   />
-                </FormGroup>
+                </Form.Group>
 
-                <FormGroup controlId="formContact">
-                  <FormLabel>Contact</FormLabel>
-                  <FormControl
+                <Form.Group controlId="formBasicPassword">
+                  <Form.Label>License Plate</Form.Label>
+                  <Form.Control
                     type="text"
-                    placeholder="phone number"
-                    value={Clients?.contact}
+                    placeholder="Enter license plate"
+                    required
+                    value={Clients?.license_plate}
                   />
-                </FormGroup>
+                </Form.Group>
 
-                <FormGroup controlId="formBasicAddress">
-                  <FormLabel>Address</FormLabel>
+                <FormGroup controlId="formDateJoin">
+                  <FormLabel>Date Join</FormLabel>
                   <FormControl
                     type="text"
                     placeholder="address"
-                    value={Clients?.address}
+                    value={Clients?.date_joined}
                   />
                 </FormGroup>
-                <FormGroup controlId="formLicense">
-                  <FormLabel>License</FormLabel>
-                  <FormControl
-                    type="text"
-                    placeholder="License"
-                    value={Clients?.LicensePlate}
-                  />
-                </FormGroup>
+
                 <div className="d-flex justify-content-center mt-3">
                   <Button
                     variant="primary"
