@@ -15,3 +15,6 @@ export const updateAccount = (data) => {
 export const deleteAccount = (ids) => {
   return http.delete("/manager/account/", ids);
 };
+export const getTimeLog = () =>{
+  return http.get("/manager/logs/")
+}

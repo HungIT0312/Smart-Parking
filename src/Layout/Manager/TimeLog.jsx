@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Container, Row, Table } from "react-bootstrap";
 import "../../assets/styles/ButtonRounded.scss";
 import { FaInfo, FaPlus } from "react-icons/fa";
-import { getTimeLog } from "../../api/TimeLog.api";
+import { getTimeLog } from "../../api/Manager/Account.api";
 import "../../assets/styles/BoxShadow.scss";
 
 export default function TimeLog() {
@@ -32,7 +32,7 @@ export default function TimeLog() {
                     <th>License</th>
                     <th>Time In</th>
                     <th>Time Out</th>
-                    <th>Options</th>
+                    {/* <th>Options</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -42,10 +42,10 @@ export default function TimeLog() {
                         <tr className="text-center" key={timeLog.id}>
                           <td className="fw-bold">{++index}</td>
                           <td>{timeLog.id}</td>
-                          <td>{timeLog.LicensePlate}</td>
-                          <td>{timeLog.TimeIn}</td>
-                          <td>{timeLog.TimeOut}</td>
-                          <td>
+                          <td>{timeLog.vehicle}</td>
+                          <td>{timeLog.time_in}</td>
+                          <td>{timeLog.time_out}</td>
+                          {/* <td>
                             <Button
                               value={timeLog.id}
                               className="ms-1"
@@ -55,7 +55,7 @@ export default function TimeLog() {
                             >
                               <FaInfo></FaInfo>
                             </Button>
-                          </td>
+                          </td> */}
                         </tr>
                       );
                     })}
@@ -64,9 +64,9 @@ export default function TimeLog() {
             </Card.Body>
           </Card>
         </Row>
-        <Button className="btnCss" xs={3} md={3}>
+        {/* <Button className="btnCss" xs={3} md={3}>
           <FaPlus />
-        </Button>
+        </Button> */}
       </Col>
     </Container>
   );
