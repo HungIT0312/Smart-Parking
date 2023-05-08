@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Container, Row, Table } from "react-bootstrap";
-import { deleteClientsById, getClient } from "../../api/Clients.api";
+
+import { deleteAccount, getAccountById } from "../../api/Manager/Account.api";
 import "../../assets/styles/ButtonRounded.scss";
 import { FaInfo, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -12,41 +13,40 @@ export default function Clients() {
   const navigate = useNavigate();
   useEffect(() => {
     const _getClients = async () => {
-      const res = await getClient();
+      const res = await getAccountById();
       setClients(res);
     };
     _getClients();
   }, []);
   const handleDelete = async (clientId) => {
-    toast.success("Delete client successfully !", { autoClose: 100 });
-    console.log(clientId);
     try {
-      await deleteClientsById(clientId);
+      await deleteAccount(clientId);
       const newClients = clients.filter((client) => client.id !== clientId);
       setClients(newClients);
+      toast.success("Delete client successfully !", { autoClose: 2000 });
     } catch (error) {
       console.log(error);
     }
   };
   const handleInfor = (clientId) => {
-    console.log(clientId);
     navigate(`/Manager/Clients/${clientId}`);
   };
   return (
     <Container>
-      <Col className="h-100">
-        <Row className="h-100" xs={12}>
-          <Card className="h-100 mt-5 cardShadow">
+      <Col>
+        <Row xs={12}>
+          <Card className=" mt-5 cardShadow">
             <Card.Header className="text-center"> </Card.Header>
             <Card.Body>
               <Table striped responsive sm={12}>
                 <thead>
                   <tr className="text-center">
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Address</th>
-                    <th>LicensePlate</th>
-                    <th>Contact</th>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Date Joined</th>
+                    <th>Parking Fee</th>
                     <th>Options</th>
                   </tr>
                 </thead>
@@ -55,13 +55,18 @@ export default function Clients() {
                     clients.map((client, index) => {
                       return (
                         <tr className="text-center" key={client.id}>
-                          <td className="fw-bold">{++index}</td>
-                          <td>{client.name}</td>
-                          <td className="d-sm-table-cell">{client.address}</td>
+                          <td>{client.id}</td>
+                          <td>{client.first_name}</td>
                           <td className="d-sm-table-cell">
-                            {client.LicensePlate}
+                            {client.last_name}
                           </td>
-                          <td className="d-sm-table-cell">{client.contact}</td>
+                          <td className="d-sm-table-cell">{client.email}</td>
+                          <td className="d-sm-table-cell">
+                            {client.date_joined}
+                          </td>
+                          <td className="d-sm-table-cell">
+                            {client.parking_fee}
+                          </td>
                           <td className="d-sm-table-cell d-flex">
                             <Button
                               value={client.id}
@@ -98,7 +103,7 @@ export default function Clients() {
         >
           <FaPlus />
         </Button>
-        <ToastContainer position="bottom-left" autoClose={1000} />
+        <ToastContainer position="bottom-left" />
       </Col>
       <Outlet context={[clients, setClients]} />
     </Container>

@@ -10,32 +10,36 @@ import {
 } from "react-bootstrap";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { addClient } from "../../../api/Clients.api";
+// import { addClient } from "../../../api/Clients.api";
+import { addAccount } from "../../../api/Manager/Account.api";
 import "../../../assets/styles/AddPage.scss";
 import CloudinaryUpload from "../../../api/Cloudinary.api";
 export default function Add() {
   const [clients, setClients] = useOutletContext();
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
+  const [first_name, setFirst_name] = useState("");
+  const [last_name, setLast_name] = useState("");
+  const [email, setEmail] = useState("");
+  const [is_staff, setIs_staff] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
-  const [contact, setContact] = useState("");
+  const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageURL, setImageURL] = useState("");
   const [progress, setProgress] = useState("");
   const params = {
-    name,
-    address,
+    first_name,
+    last_name,
+    email,
+    is_staff,
     LicensePlate: licensePlate,
-    contact,
+    password,
     logo: imageURL,
   };
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await addClient(params);
+      await addAccount(params);
       await toast.success("Add client successfully !");
-
       setClients([...clients, params]);
       navigate(-1);
     } catch (error) {
@@ -79,14 +83,51 @@ export default function Add() {
         <Card.Body>
           <Form onSubmit={handleSubmit}>
             <Form.Group controlId="formBasicEmail">
-              <Form.Label>Name</Form.Label>
+              <Row>
+                <Col>
+                  <Form.Label>First Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter first name"
+                    value={first_name}
+                    onChange={(event) => setFirst_name(event.target.value)}
+                    required
+                    message="nhập đi"
+                  />
+                </Col>
+                <Col>
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter first name"
+                    value={last_name}
+                    onChange={(event) => setLast_name(event.target.value)}
+                    required
+                    message="nhập đi"
+                  />
+                </Col>
+              </Row>
+            </Form.Group>
+            <Form.Group controlId="formBasicEmail">
+              <Form.Label>Email</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
+                placeholder="Enter email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 required
                 message="nhập đi"
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formBasicPassword">
+              <Form.Label>PassWord</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
               />
             </Form.Group>
 
@@ -102,31 +143,16 @@ export default function Add() {
             </Form.Group>
 
             <Form.Group controlId="formBasicPassword">
-              <Row>
-                <Col>
-                  <Form.Label>Contact</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter contact"
-                    value={contact}
-                    onChange={(event) => setContact(event.target.value)}
-                    required
-                  />
-                </Col>
-                <Col>
-                  <Form.Group controlId="formBasicPassword">
-                    <Form.Label>Address</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter address"
-                      value={address}
-                      onChange={(event) => setAddress(event.target.value)}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+              <Form.Label>Staff</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter staff"
+                value={is_staff}
+                onChange={(event) => setIs_staff(event.target.value)}
+                required
+              />
             </Form.Group>
+
             <Form.Group controlId="formBasicPassword">
               <Form.Label>License</Form.Label>
               <Form.Control

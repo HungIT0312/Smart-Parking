@@ -12,10 +12,10 @@ export default function Auth(props) {
       navigate("/Manager/Login");
       toast.warning("You don't have enough permission to access !");
     }
-  }, []);
+  });
 
   return (
-    <Container>
+    <Container fluid>
       <ToastContainer position="top-right" />
       {props.children}
     </Container>

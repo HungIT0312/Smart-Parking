@@ -1,11 +1,11 @@
 import axios from "axios";
 // import { REACT_APP_API_KEY, REACT_APP_API_URL } from "@env";
 // console.log(API_URL);
-
+//http://192.168.5.237:8000/
 class Http {
   constructor() {
     this.instance = axios.create({
-      baseURL: "http://192.168.5.230:8000/",
+      baseURL: "http://192.168.5.234:8000/",
       name: "Parking",
       timeout: 10000,
       headers: {

@@ -17,18 +17,20 @@ function LoginPage({ role }) {
       email: email,
       password: pass,
     };
-    console.log(data);
     const _getToken = async () => {
       try {
         const res = await getTokenLogin(data);
         if (res.token) {
-          await toast.success("Login successfully !", { autoClose: 3000 });
+          await toast.success("Login successfully !");
           window.sessionStorage.setItem("tokenAd", res.token);
           res.role === 1 ? navigate("/Manager/") : navigate("/Client/");
         } else {
-          toast.error("Login fail !", { autoClose: 3000 });
+          toast.error("Login fail !");
         }
-      } catch (error) {}
+      } catch (error) {
+        toast.error("Login fail !");
+      }
+      // navigate("/Manager/");
     };
     _getToken();
   };
@@ -41,7 +43,7 @@ function LoginPage({ role }) {
       }}
       fluid
     >
-      <ToastContainer position="bottom-left" />
+      <ToastContainer position="top-right" />
       <Row className=" min-vh-100 justify-content-center align-items-center">
         <Col md={6} lg={6} xs={9} className="">
           <Card className="p-lg-5 ">
