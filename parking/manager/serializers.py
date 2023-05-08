@@ -24,13 +24,13 @@ class AccountSerializer(serializers.ModelSerializer):
 class LogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
-        fields = ('vehicle','image_in')
+        fields = '__all__'
         
     def create(self, validated_data):
-        validated_data['time_in'] = timezone.now() + timedelta(hours=7)
+        validated_data['time_in'] = timezone.now()
         return super().create(validated_data)
     def update(self, instance, validated_data):
-        instance.time_out = timezone.now() + timedelta(hours=7)
+        instance.time_out = timezone.now()
         instance.save()
         return instance
         

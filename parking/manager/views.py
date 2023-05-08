@@ -56,10 +56,18 @@ class AccountApiView(APIView):
         id = self.request.query_params.get('id', None)
         if id is None:
             accounts = Account.objects.all()
+            response_data = AccountSerializer(accounts, many=True).data
         else:
             accounts = Account.objects.filter(id=id)
-        serializer = AccountSerializer(accounts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            vehicle = Vehicle.objects.filter(user=id)
+            accountSerializer = AccountSerializer(accounts, many=True)
+            vehicleSerializer = VehicleSerializer(vehicle, many=True)
+            response_data = {
+            'user': accountSerializer.data,
+            'vehicle': vehicleSerializer.data
+            }
+
+        return Response(response_data, status=status.HTTP_200_OK)
     
     def post(self, request):
         email = json.loads(request.body)["email"]
@@ -96,18 +104,15 @@ class AccountApiView(APIView):
     
     def delete(self,request):
         ids = json.loads(request.body)["ids"]
+        print(ids)
         try:
             if not isinstance(ids, list):
                 return Response({"error": "The ids parameter must be a list."}, status=status.HTTP_400_BAD_REQUEST)
             for id in ids:
                 try:
                     account = Account.objects.filter(id=id).first()
-                    vehicle = Vehicle.objects.filter(user=id).first()
                 except Account.DoesNotExist:
                     return Response("Account not found",status=status.HTTP_404_NOT_FOUND)
-                except Vehicle.DoesNotExist:
-                    return Response("Vehicle not found",status=status.HTTP_404_NOT_FOUND)
-                vehicle.delete()
                 account.delete()          
             return Response("Delete successfully",status=201)
         except json.JSONDecodeError:
@@ -122,8 +127,12 @@ class AccountApiView(APIView):
 class LogApiView(APIView):
     permission_classes = (permissions.AllowAny,)
     def get(self, request):
-        logs = Log.objects.all()
-        serializer = LogSerializer(logs, many=True)
+        vehicle = self.request.query_params.get('vehicle', None)
+        if vehicle is None:
+            id = Log.objects.all()
+        else:
+            id = Log.objects.filter(vehicle=vehicle)
+        serializer = LogSerializer(id, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
@@ -162,39 +171,59 @@ class LogApiView(APIView):
                 
             # websocket
             print(resultDetection)
-            
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-            "test_channel",
-            {
-                "type": "connection_established",
-                "message": cloudinary_url
-            }
-            )
-            # Thêm log vào database
+
+            # Định dạng dữ liệu log
             my_data = {'vehicle': resultDetection,
                        'image_in': cloudinary_url}
             logSerializer = LogSerializer(data=my_data)
             vehicle_id = my_data['vehicle']
             log = Log.objects.filter(vehicle=vehicle_id, time_out__isnull=True).first()
             # Kiểm tra có tồn tại xe tại bãi chưa
-            
             if log is not None and log.time_out is None:
                  return Response("This vehicle is existed",status=400)
             else:
                 if logSerializer.is_valid():
                     logSerializer.save()
-            license_sample = Vehicle.objects.filter(license_plate = resultDetection).first()
-            if license_sample is not None:
+            # Upload ảnh lên cloud
+            vehicle = Vehicle.objects.filter(license_plate = resultDetection).first()
+            user = Account.objects.filter(email=vehicle.user).first()
+            if vehicle is not None:
                 new_filename =checkin_path + "check in-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
+                message = {
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "email": user.email,
+                    "license_plate": resultDetection,
+                    "date_joined": user.date_joined.isoformat(),
+                    "image": cloudinary_url
+                }
+                
+                socketMessage = {
+                "type": "connection_established",
+                "message": message
+                }
+            
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                "test_channel",socketMessage
+                )
                 return Response(1,status=201)
             else:
                 resultDetection = resultDetection + "(unregister)"
                 new_filename =checkin_path + "check in-" +resultDetection + " " +  str(timezone.now()) +  ".jpg"
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
+                socketMessage = {
+                "type": "connection_established",
+                "message": cloudinary_url
+                }
+            
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                "test_channel",socketMessage
+                )
                 return Response(0, status=400)                 
         else:
             return Response(0, status=400)
@@ -210,13 +239,6 @@ class LogApiView(APIView):
             cloudinary_url = uploaded_image['secure_url']
             arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
             image = cv2.imdecode(arr, -1) 
-            
-            # folder_url = 'static/image/'
-            # name_image = "checkout.jpg"
-            # duong_dan_luu = folder_url + name_image
-            # cv2.imwrite(duong_dan_luu, image)
-            
-
             if image is not None:
                 resultDetection = model_AI.mode_AI(image)
             else:
@@ -269,51 +291,6 @@ class SlotUpdate(APIView):
             time.sleep(0.1)
             num_channels_processed = len([channel_name for channel_name in channel_layer.channels.keys() if channel_name.startswith(f"group-{group_name}-")])
         return Response(status=status.HTTP_200_OK)
-        
-
-# # API for Vehicle
-    
-# class VehicleApiView(APIView):
-#     def get(self, request):
-#         license_plate = self.request.query_params.get('license_plate', None)
-#         if license_plate is None:
-#             vehicles = Vehicle.objects.all()
-#         else:
-#             vehicles = Vehicle.objects.filter(license_plate=license_plate)
-#         serializer = VehicleSerializer(vehicles, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-#     def post(self, request):
-#         serializer = VehicleSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#     def put(self,request):
-#         id = json.loads(request.body)["license_plate"]
-#         try:
-#             account = Vehicle.objects.filter(license_plate=id).first()
-#         except Vehicle.DoesNotExist:
-#             return Response(status=status.HTTP_404_NOT_FOUND)
-
-#         serializer = VehicleSerializer(account, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#     def delete(self,request):
-#         license_plates = json.loads(request.body)["license_plates"]
-#         for license_plate in license_plates:
-#             try:
-#                 account = Vehicle.objects.filter(license_plate=license_plate).first() 
-#             except Vehicle.DoesNotExist:
-#                 return Response("Vehicle does not exist",status=status.HTTP_404_NOT_FOUND)
-#             account.delete()
-#         return Response("Delete successfully",status=status.HTTP_204_NO_CONTENT)
-    
-    
 
 class CustomObtainAuthToken(ObtainAuthToken):
     serializer_class = AccountSerializer
