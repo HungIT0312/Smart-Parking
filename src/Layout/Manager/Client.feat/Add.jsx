@@ -13,6 +13,7 @@ import { toast, ToastContainer } from "react-toastify";
 // import { addClient } from "../../../api/Clients.api";
 import { addAccount } from "../../../api/Manager/Account.api";
 import "../../../assets/styles/AddPage.scss";
+import "react-toastify/dist/ReactToastify.css";
 import CloudinaryUpload from "../../../api/Cloudinary.api";
 export default function Add() {
   const [clients, setClients] = useOutletContext();
@@ -20,12 +21,14 @@ export default function Add() {
   const [first_name, setFirst_name] = useState("");
   const [last_name, setLast_name] = useState("");
   const [email, setEmail] = useState("");
-  const [is_staff, setIs_staff] = useState("");
+  const [is_staff, setIs_staff] = useState(0);
   const [licensePlate, setLicensePlate] = useState("");
   const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageURL, setImageURL] = useState("");
   const [progress, setProgress] = useState("");
+  const [repeatePass,setRepeatePass] = useState("");
+  const [confirmMess,setConfirmMess] = useState("");
   const params = {
     first_name,
     last_name,
@@ -39,10 +42,17 @@ export default function Add() {
     event.preventDefault();
     try {
       console.log(params);
-      await addAccount(params);
-      await toast.success("Add client successfully !");
-      setClients([...clients, params]);
-      navigate(-1);
+      if(repeatePass === password)
+      {
+        await addAccount(params);
+        await toast.success("Add client successfully !");
+        setClients([...clients, params]);
+        navigate(-1);
+      }
+      else {
+        setConfirmMess('Wrong password')
+        return
+      }
     } catch (error) {
       console.log(error);
     }
@@ -122,16 +132,27 @@ export default function Add() {
             </Form.Group>
 
             <Form.Group controlId="formBasicPassword">
-              <Form.Label>PassWord</Form.Label>
+              <Form.Label>Password</Form.Label>
               <Form.Control
-                type="text"
+                type="password"
                 placeholder="Enter password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
               />
             </Form.Group>
-
+            <Form.Group controlId="formRepeatPass">
+              <Form.Label>Repeat Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Repeat password"
+                value={repeatePass}
+                onChange={(event) => setRepeatePass(event.target.value)}
+                isInvalid={confirmMess!==''}
+                required
+              />
+              <Form.Control.Feedback type="invalid">{confirmMess}</Form.Control.Feedback>
+            </Form.Group>
             <Form.Group controlId="formBasicPassword">
               <Form.Label>License Plate</Form.Label>
               <Form.Control
@@ -143,19 +164,22 @@ export default function Add() {
               />
             </Form.Group>
 
-            <Form.Group controlId="formBasicPassword">
+            <Form.Group controlId="formBasicStaff">
               <Form.Label>Staff</Form.Label>
-              <Form.Control
-                type="text"
+              <Form.Select
                 placeholder="Enter staff"
                 value={is_staff}
                 onChange={(event) => setIs_staff(event.target.value)}
                 required
-              />
+                aria-label="Options"
+              >
+                <option value={0} selected>Client</option>
+                <option value={1} >Admin</option>
+              </Form.Select>
             </Form.Group>
 
-            <Form.Group controlId="formBasicPassword">
-              <Form.Label>License</Form.Label>
+            <Form.Group controlId="imgForm">
+              <Form.Label>License Img</Form.Label>
               <Form.Control
                 type="file"
                 accept="image/png, image/jpeg"
@@ -179,13 +203,12 @@ export default function Add() {
               <Button
                 type="submit"
                 className="ms-2"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/Manager/Clients/')}
               >
                 Back
               </Button>
             </Form.Group>
 
-            <ToastContainer position="bottom-left" autoClose={1000} />
           </Form>
         </Card.Body>
       </Card>
