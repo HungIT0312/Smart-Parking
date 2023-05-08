@@ -14,19 +14,44 @@ import {
 import Color from "../../constants/colors.js";
 const License = () => {
   const [Clients, setClients] = useState("");
-  try {
-    useEffect(() => {
-      console.log("get");
-      const _getLicense = async () => {
-        const res = await getClientById("1");
-        setClients(res);
-      };
-      _getLicense();
-    }, []);
-  } catch (error) {
-    console.log(error);
-  }
-  console.log(Clients);
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = new WebSocket("ws://192.168.5.234:8000/ws/test_channel/");
+    setSocket(newSocket);
+    console.log(newSocket);
+
+    return () => {
+      newSocket.close();
+    };
+  }, []);
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.onopen = () => {
+      console.log("Kết nối WebSocket đã được thiết lập.");
+    };
+
+    socket.onmessage = (event) => {
+      console.log("Nhận dữ liệu từ máy chủ: " + event.data);
+    };
+
+    socket.onclose = () => {
+      console.log("Kết nối WebSocket đã đóng.");
+    };
+
+    socket.onerror = (error) => {
+      console.log("Lỗi kết nối WebSocket: " + error);
+    };
+
+    return () => {
+      socket.onopen = null;
+      socket.onmessage = null;
+      socket.onclose = null;
+      socket.onerror = null;
+    };
+  }, [socket]);
+
   return (
     <Container className="" style={{ color: Color.paragraph }}>
       <Row className="flex-column flex-sm-row ">
