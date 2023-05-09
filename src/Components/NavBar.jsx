@@ -12,7 +12,9 @@ const NavBar = (props) => {
   const handleClick = (event) => {
     setActiveLink(event.target.getAttribute("href"));
   };
-
+  const handleLogout = (event) => {
+    event.preventDefault();
+  };
   const menu = route;
   const showMenu =
     menu &&
@@ -59,7 +61,12 @@ const NavBar = (props) => {
         <Nav className="me-auto">{showMenu}</Nav>
         {props.role === 0 && (
           <Nav className="me-2">
-            <Nav.Link style={{ color: Color.navParagraph }}>Logout</Nav.Link>
+            <Nav.Link
+              style={{ color: Color.navParagraph }}
+              onClick={handleLogout}
+            >
+              Logout
+            </Nav.Link>
           </Nav>
         )}
       </Navbar.Collapse>
