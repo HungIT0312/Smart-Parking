@@ -11,6 +11,7 @@ import Error from "./Page/Error/Error";
 import LoginPage from "./Page/Login";
 import Manager from "./Page/Manager/Manager";
 import Register from "./Page/Register";
+import Profile from "./Layout/Client/Profile";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/Client" element={<ClientPage />}>
           <Route path="Profile" element={<Error />} />
           <Route path="*" element={<Error />}></Route>
+          <Route path="Profile" element={<Profile />}/>
           <Route path="Parking" element={<ParkingLots />} />
         </Route>
         <Route path="*" element={<Navigate to="/Client" replace />} />

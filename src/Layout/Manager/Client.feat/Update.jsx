@@ -10,7 +10,7 @@ import {
   // Image,
   Row,
 } from "react-bootstrap";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../../../assets/styles/BoxShadow.scss";
 export default function ClientInfo() {
@@ -85,7 +85,7 @@ export default function ClientInfo() {
                     <Form.Label>Last Name</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Client's name"
+                    placeholder="Client's last name"
                     readOnly={!isEditing}
                     value={client.last_name}
                     onChange={(e) =>
@@ -100,7 +100,7 @@ export default function ClientInfo() {
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Address"
+                    placeholder="Client's email"
                     readOnly
                     value={client.email}
                     onChange={(e) =>
@@ -112,7 +112,7 @@ export default function ClientInfo() {
                   <Form.Label>Date Joined</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="LicensePlate"
+                    placeholder="Client's date joined"
                     readOnly
                     value={client?.date_joined}
                   />
