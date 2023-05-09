@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { getClientById } from "../../api/Clients.api.js";
 import {
   Button,
   Card,
   Col,
   Container,
+  Form,
   FormControl,
   FormGroup,
   FormLabel,
-  Row,
-  Form,
   Image,
+  Row,
 } from "react-bootstrap";
-import Color from "../../constants/colors.js";
 import image from "../../assets/imagePlaceHolder.png";
+import Color from "../../constants/colors.js";
 const License = () => {
   const [Clients, setClients] = useState();
   const [socket, setSocket] = useState(null);
