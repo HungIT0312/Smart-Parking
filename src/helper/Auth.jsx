@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function Auth(props) {
-  const [token, setToken] = useState(sessionStorage.getItem("tokenAd"));
+  const [token, setToken] = useState(sessionStorage.getItem("tokenAdmin"));
   const navigate = useNavigate();
   useEffect(() => {
     if (!token) {

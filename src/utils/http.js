@@ -26,7 +26,7 @@ class Http {
     );
     this.instance.interceptors.request.use(
       (config) => {
-        const token = sessionStorage.getItem("tokenAd");
+        const token = sessionStorage.getItem("tokenAdmin");
         if (token) {
           config.headers["Authorization"] = `Token ${token}`;
         }

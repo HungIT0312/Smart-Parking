@@ -20,12 +20,13 @@ function LoginPage({ role }) {
     const _getToken = async () => {
       try {
         const res = await getTokenLogin(data);
+        console.log(res);
         if (res.token) {
           await toast.success("Login successfully !");
-          window.sessionStorage.setItem("tokenAd", res.token);
+          window.sessionStorage.setItem("tokenAdmin", res.token);
           res.role === 1 ? navigate("/Manager/") : navigate("/Client/");
         } else {
-          toast.error("Login fail !");
+          // toast.error("Login fail !");
         }
       } catch (error) {
         toast.error("Login fail !");

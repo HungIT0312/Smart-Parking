@@ -1,19 +1,40 @@
 import React, { useState } from "react";
 import { Container, Image, Nav, Navbar } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/iconParking.png";
 import "../assets/styles/Nav.scss";
 import Color from "../constants/colors";
 import "../assets/styles/LeftAlign.scss";
+import { logoutManager } from "../api/Manager/LogOut.api";
+// import { IconBase } from "react-icons";
+import { FiLogOut } from "react-icons/fi";
 const NavBar = (props) => {
   const [route, setRoute] = useState(props.route);
   const [activeLink, setActiveLink] = useState("");
-
+  const navigate = useNavigate();
   const handleClick = (event) => {
     setActiveLink(event.target.getAttribute("href"));
   };
-  const handleLogout = (event) => {
+  const handleLogoutClient = (event) => {
+    const _LogOut = async () => {
+      const res = await logoutManager();
+      if (res) {
+        sessionStorage.removeItem("tokenAdmin");
+        navigate("/Client/Login");
+      }
+    };
+    _LogOut();
+  };
+  const handleLogoutAdmin = (event) => {
     event.preventDefault();
+    const _LogOut = async () => {
+      const res = await logoutManager();
+      if (res) {
+        sessionStorage.removeItem("tokenAdmin");
+        navigate("/Manager/Login");
+      }
+    };
+    _LogOut();
   };
   const menu = route;
   const showMenu =
@@ -59,16 +80,19 @@ const NavBar = (props) => {
       <Navbar.Toggle aria-controls="navbarNav" />
       <Navbar.Collapse id="navbarNav responsive-navbar-nav">
         <Nav className="me-auto">{showMenu}</Nav>
-        {props.role === 0 && (
+        {
           <Nav className="me-2">
             <Nav.Link
               style={{ color: Color.navParagraph }}
-              onClick={handleLogout}
+              onClick={
+                props.role === 0 ? handleLogoutClient : handleLogoutAdmin
+              }
             >
-              Logout
+              LogOut
+              <FiLogOut size={18} className="ms-2"></FiLogOut>
             </Nav.Link>
           </Nav>
-        )}
+        }
       </Navbar.Collapse>
     </Navbar>
   );

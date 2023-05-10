@@ -22,11 +22,11 @@ export default function Profile(props) {
   const [confirmMess, setConfirmMess] = useState("");
   const [token, setToken] = useState(sessionStorage.getItem("tokenClient"));
   useEffect(() => {
-    const _getProfile = async () => {
-      const res = await getAccountById();
-      console.log(res);
-    };
-    _getProfile();
+    // const _getProfile = async () => {
+    //   const res = await getAccountById();
+    //   console.log(res);
+    // };
+    // _getProfile();
   }, []);
   const handleEditClick = () => {
     setIsEditing((prevState) => !prevState);

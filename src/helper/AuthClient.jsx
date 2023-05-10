@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function AuthClient(props) {
-  const [token, setToken] = useState(sessionStorage.getItem("tokenClient"));
+  const [token, setToken] = useState(sessionStorage.getItem("tokenAdmin"));
   const navigate = useNavigate();
   useEffect(() => {
     if (!token) {

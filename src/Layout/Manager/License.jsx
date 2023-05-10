@@ -63,6 +63,7 @@ const License = () => {
                     <Col>
                       <Form.Label>First Name</Form.Label>
                       <Form.Control
+                        readOnly
                         type="text"
                         placeholder="Enter first name"
                         required
@@ -72,8 +73,9 @@ const License = () => {
                     <Col>
                       <Form.Label>Last Name</Form.Label>
                       <Form.Control
+                        readOnly
                         type="text"
-                        placeholder="Enter first name"
+                        placeholder="Enter last name"
                         required
                         value={data?.Clients?.last_name}
                       />
@@ -83,6 +85,7 @@ const License = () => {
                 <Form.Group controlId="formBasicEmail">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
+                    readOnly
                     type="text"
                     placeholder="Email"
                     value={data?.Clients?.email}
@@ -93,6 +96,7 @@ const License = () => {
                 <Form.Group controlId="formBasicPassword">
                   <Form.Label>License Plate</Form.Label>
                   <Form.Control
+                    readOnly
                     type="text"
                     placeholder="Enter license plate"
                     required
@@ -103,6 +107,7 @@ const License = () => {
                 <FormGroup controlId="formDateJoin">
                   <FormLabel>Date Join</FormLabel>
                   <FormControl
+                    readOnly
                     type="text"
                     placeholder="address"
                     value={data?.Clients?.date_joined}
