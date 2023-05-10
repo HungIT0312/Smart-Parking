@@ -1,18 +1,12 @@
 import React, { useState } from "react";
-import { useEffect } from "react";
-// import { getLots } from "../../api/Lots.api";
-import Lot from "../../Components/Lot";
 import { Card, Col, Container, Row } from "react-bootstrap";
+import Lot from "../../Components/Lot";
 import Color from "../../constants/colors";
+import { useOutletContext } from "react-router-dom";
 
 const ParkingLots = () => {
   const [Lots, setLots] = useState();
-  try {
-    // useEffect(() => {}, []);
-  } catch (error) {
-    console.log(error);
-  }
-
+  const data = useOutletContext();
   return (
     <Container className="" style={{ minHeight: "75vh" }}>
       <Row className="   mt-5 h-100" style={{ minHeight: "75vh" }}>
@@ -26,10 +20,14 @@ const ParkingLots = () => {
           >
             <Card.Body>
               <Row xs={12} md={12} lg={12} className="h-100">
-                {Lots &&
-                  Lots.map((lot, index) => {
+                {data.Lots &&
+                  data?.Lots.map((lot, index) => {
                     return (
-                      <Lot slotName={lot.slotName} status={lot.status}></Lot>
+                      <Lot
+                        key={index}
+                        name={`Lot #${index + 1}`}
+                        status={lot}
+                      ></Lot>
                     );
                   })}
               </Row>
@@ -42,6 +40,7 @@ const ParkingLots = () => {
             className="h-100 "
           >
             <Card.Body className="d-flex flex-column text-center  ">
+              <h2>Status</h2>
               <Card
                 className="h-50 m-2"
                 bg=""

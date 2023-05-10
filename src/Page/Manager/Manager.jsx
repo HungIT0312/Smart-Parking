@@ -9,43 +9,60 @@ import { useEffect } from "react";
 import { useState } from "react";
 const Manager = () => {
   const [Clients, setClients] = useState();
-  const [socket, setSocket] = useState(null);
+  const [Lots, setLots] = useState();
+  const [socketClient, setSocketClient] = useState(null);
+  const [socketParking, setSocketParking] = useState(null);
+  const data = {
+    Clients: Clients,
+    Lots: Lots,
+  };
   useEffect(() => {
     const newSocket = new WebSocket("ws://192.168.5.147:8000/ws/test_channel/");
-    setSocket(newSocket);
+    const parkingSocket = new WebSocket(
+      "ws://192.168.5.147:8000/ws/slot_channel/"
+    );
+    setSocketParking(parkingSocket);
+    setSocketClient(newSocket);
 
     return () => {
       newSocket.close();
     };
   }, []);
   useEffect(() => {
-    if (!socket) return;
+    if (!socketClient) return;
 
-    socket.onopen = () => {
-      console.log("Socket on Manager is connected !");
+    socketClient.onopen = () => {
+      console.log("socketClient on Manager is connected !");
     };
-
-    socket.onmessage = (event) => {
+    socketParking.onopen = () => {
+      console.log("ParkingSocket on Manager is connected !");
+    };
+    socketClient.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log(data.message);
       event && setClients(data.message);
     };
+    socketParking.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data.message);
+      event && setLots(data.message);
+    };
 
-    socket.onclose = () => {
+    socketClient.onclose = () => {
       console.log("Kết nối WebSocket đã đóng.");
     };
 
-    socket.onerror = (error) => {
+    socketClient.onerror = (error) => {
       console.log("Lỗi kết nối WebSocket: " + error);
     };
 
     return () => {
-      socket.onopen = null;
-      socket.onmessage = null;
-      socket.onclose = null;
-      socket.onerror = null;
+      socketClient.onopen = null;
+      socketClient.onmessage = null;
+      socketClient.onclose = null;
+      socketClient.onerror = null;
     };
-  }, [socket]);
+  }, [socketClient, socketParking]);
   return (
     <Auth
       className=""
@@ -55,7 +72,7 @@ const Manager = () => {
       }}
     >
       <NavBar route={routeConf} />
-      <Outlet context={Clients} />
+      <Outlet context={data} />
     </Auth>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Button,
   Card,
@@ -11,12 +11,12 @@ import {
   Image,
   Row,
 } from "react-bootstrap";
+import { useOutletContext } from "react-router-dom";
 import image from "../../assets/imagePlaceHolder.png";
 import Color from "../../constants/colors.js";
-import { useContext } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useState } from "react";
 const License = () => {
-  const Clients = useOutletContext();
+  const data = useOutletContext();
   return (
     <Container className="" style={{ color: Color.paragraph }}>
       <Row className="flex-column flex-sm-row ">
@@ -24,8 +24,8 @@ const License = () => {
           <Card
             className="h-100"
             style={{
-              boxShadow: Color.cardBoxShadow,
               backgroundColor: Color.cardBackgroundColor,
+              boxShadow: " rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
             }}
           >
             <Card.Header
@@ -38,12 +38,15 @@ const License = () => {
               Vehicle information
             </Card.Header>
             <Card.Body className="p-3 d-flex justify-content-center ">
-              <Image src={Clients?.image || image} thumbnail fluid />
+              <Image src={data?.Clients?.image || image} thumbnail fluid />
             </Card.Body>
           </Card>
         </Col>
         <Col className="col-sm-12 col-md-6 mt-5" xs={12} md={6}>
-          <Card className="h-100 " style={{ boxShadow: Color.cardBoxShadow }}>
+          <Card
+            className="h-100 "
+            style={{ boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px" }}
+          >
             <Card.Header
               className="text-center"
               style={{
@@ -63,7 +66,7 @@ const License = () => {
                         type="text"
                         placeholder="Enter first name"
                         required
-                        value={Clients?.first_name}
+                        value={data?.Clients?.first_name}
                       />
                     </Col>
                     <Col>
@@ -72,7 +75,7 @@ const License = () => {
                         type="text"
                         placeholder="Enter first name"
                         required
-                        value={Clients?.last_name}
+                        value={data?.Clients?.last_name}
                       />
                     </Col>
                   </Row>
@@ -82,7 +85,7 @@ const License = () => {
                   <Form.Control
                     type="text"
                     placeholder="Email"
-                    value={Clients?.email}
+                    value={data?.Clients?.email}
                     required
                   />
                 </Form.Group>
@@ -93,7 +96,7 @@ const License = () => {
                     type="text"
                     placeholder="Enter license plate"
                     required
-                    value={Clients?.license_plate}
+                    value={data?.Clients?.license_plate}
                   />
                 </Form.Group>
 
@@ -102,7 +105,7 @@ const License = () => {
                   <FormControl
                     type="text"
                     placeholder="address"
-                    value={Clients?.date_joined}
+                    value={data?.Clients?.date_joined}
                   />
                 </FormGroup>
 

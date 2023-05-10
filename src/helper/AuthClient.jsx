@@ -10,7 +10,7 @@ export default function AuthClient(props) {
   const navigate = useNavigate();
   useEffect(() => {
     if (!token) {
-      // navigate("/Client/Login/");
+      navigate("/Client/Login/");
       toast.warning("Please login first!", { autoClose: 1000 });
     }
   }, []);
