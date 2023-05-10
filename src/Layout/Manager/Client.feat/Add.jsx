@@ -9,12 +9,12 @@ import {
   Row,
 } from "react-bootstrap";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 // import { addClient } from "../../../api/Clients.api";
-import { addAccount } from "../../../api/Manager/Account.api";
-import "../../../assets/styles/AddPage.scss";
 import "react-toastify/dist/ReactToastify.css";
 import CloudinaryUpload from "../../../api/Cloudinary.api";
+import { addAccount } from "../../../api/Manager/Account.api";
+import "../../../assets/styles/AddPage.scss";
 export default function Add() {
   const [clients, setClients] = useOutletContext();
   const navigate = useNavigate();
@@ -27,8 +27,8 @@ export default function Add() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageURL, setImageURL] = useState("");
   const [progress, setProgress] = useState("");
-  const [repeatePass,setRepeatePass] = useState("");
-  const [confirmMess,setConfirmMess] = useState("");
+  const [repeatePass, setRepeatePass] = useState("");
+  const [confirmMess, setConfirmMess] = useState("");
   const params = {
     first_name,
     last_name,
@@ -42,16 +42,14 @@ export default function Add() {
     event.preventDefault();
     try {
       console.log(params);
-      if(repeatePass === password)
-      {
+      if (repeatePass === password) {
         await addAccount(params);
         await toast.success("Add client successfully !");
         setClients([...clients, params]);
         navigate(-1);
-      }
-      else {
-        setConfirmMess('Wrong password')
-        return
+      } else {
+        setConfirmMess("Wrong password");
+        return;
       }
     } catch (error) {
       console.log(error);
@@ -148,10 +146,12 @@ export default function Add() {
                 placeholder="Repeat password"
                 value={repeatePass}
                 onChange={(event) => setRepeatePass(event.target.value)}
-                isInvalid={confirmMess!==''}
+                isInvalid={confirmMess !== ""}
                 required
               />
-              <Form.Control.Feedback type="invalid">{confirmMess}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {confirmMess}
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group controlId="formBasicPassword">
               <Form.Label>License Plate</Form.Label>
@@ -173,8 +173,10 @@ export default function Add() {
                 required
                 aria-label="Options"
               >
-                <option value={0} selected>Client</option>
-                <option value={1} >Admin</option>
+                <option value={0} selected>
+                  Client
+                </option>
+                <option value={1}>Admin</option>
               </Form.Select>
             </Form.Group>
 
@@ -203,12 +205,11 @@ export default function Add() {
               <Button
                 type="submit"
                 className="ms-2"
-                onClick={() => navigate('/Manager/Clients/')}
+                onClick={() => navigate("/Manager/Clients/")}
               >
                 Back
               </Button>
             </Form.Group>
-
           </Form>
         </Card.Body>
       </Card>

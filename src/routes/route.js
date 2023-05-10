@@ -25,10 +25,6 @@ const clientRoute = [
     name: "Profile",
     to: "/Client/Profile",
   },
-  {
-    name: "Log Out",
-    to: "/Client/Login",
-  },
 ];
 export { routeConf };
 export { clientRoute };

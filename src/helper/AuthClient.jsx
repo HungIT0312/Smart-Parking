@@ -1,6 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
+import { Container, ToastContainer } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -9,9 +10,13 @@ export default function AuthClient(props) {
   const navigate = useNavigate();
   useEffect(() => {
     if (!token) {
-      navigate("/Manager/Login");
-      toast.warning("You don't have enough permission to access !");
+      // navigate("/Client/Login/");
+      toast.warning("Please login first!", { autoClose: 1000 });
     }
   }, []);
-  return <div>AuthClient</div>;
+  return (
+    <Container fluid style={{ padding: 0 }}>
+      {props.children}
+    </Container>
+  );
 }

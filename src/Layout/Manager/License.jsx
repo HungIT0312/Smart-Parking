@@ -1,60 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { getClientById } from "../../api/Clients.api.js";
 import {
   Button,
   Card,
   Col,
   Container,
+  Form,
   FormControl,
   FormGroup,
   FormLabel,
-  Row,
-  Form,
   Image,
+  Row,
 } from "react-bootstrap";
-import Color from "../../constants/colors.js";
 import image from "../../assets/imagePlaceHolder.png";
+import Color from "../../constants/colors.js";
+import { useContext } from "react";
+import { useOutletContext } from "react-router-dom";
 const License = () => {
-  const [Clients, setClients] = useState();
-  const [socket, setSocket] = useState(null);
-
-  useEffect(() => {
-    const newSocket = new WebSocket("ws://192.168.5.234:8000/ws/test_channel/");
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
-  }, []);
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.onopen = () => {
-      console.log("Kết nối WebSocket đã được thiết lập.");
-    };
-
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log(data.message);
-      event && setClients(data.message);
-    };
-
-    socket.onclose = () => {
-      console.log("Kết nối WebSocket đã đóng.");
-    };
-
-    socket.onerror = (error) => {
-      console.log("Lỗi kết nối WebSocket: " + error);
-    };
-
-    return () => {
-      socket.onopen = null;
-      socket.onmessage = null;
-      socket.onclose = null;
-      socket.onerror = null;
-    };
-  }, [socket]);
-
+  const Clients = useOutletContext();
   return (
     <Container className="" style={{ color: Color.paragraph }}>
       <Row className="flex-column flex-sm-row ">

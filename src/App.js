@@ -32,7 +32,7 @@ function App() {
         <Route path="/Client/Register" element={<Register role={2} />}></Route>
         <Route path="/Client" element={<ClientPage />}>
           <Route path="*" element={<Error />}></Route>
-          <Route path="Profile" element={<Profile />}/>
+          <Route path="Profile" element={<Profile />} />
           <Route path="Parking" element={<ParkingLots />} />
         </Route>
         <Route path="*" element={<Navigate to="/Client" replace />} />

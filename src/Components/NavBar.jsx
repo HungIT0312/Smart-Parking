@@ -12,7 +12,9 @@ const NavBar = (props) => {
   const handleClick = (event) => {
     setActiveLink(event.target.getAttribute("href"));
   };
-
+  const handleLogout = (event) => {
+    event.preventDefault();
+  };
   const menu = route;
   const showMenu =
     menu &&
@@ -55,10 +57,18 @@ const NavBar = (props) => {
         />
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="navbarNav" />
-      <Navbar.Collapse id="navbarNav ">
-        <Container fluid>
-          <Nav className="">{showMenu}</Nav>
-        </Container>
+      <Navbar.Collapse id="navbarNav responsive-navbar-nav">
+        <Nav className="me-auto">{showMenu}</Nav>
+        {props.role === 0 && (
+          <Nav className="me-2">
+            <Nav.Link
+              style={{ color: Color.navParagraph }}
+              onClick={handleLogout}
+            >
+              Logout
+            </Nav.Link>
+          </Nav>
+        )}
       </Navbar.Collapse>
     </Navbar>
   );

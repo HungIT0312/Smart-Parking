@@ -38,7 +38,7 @@ function LoginPage({ role }) {
   return (
     <Container
       style={{
-        backgroundColor: Color.navColor,
+        background: "linear-gradient(90deg, #3F2B96 0%, #A8C0FF 100%)",
         maxWidth: "100%",
       }}
       fluid
@@ -95,10 +95,6 @@ function LoginPage({ role }) {
                     SignIn
                   </Button>
                 </div>
-
-                {/* <Button variant="primary" type="submit" className="mt-3">
-                  SignIn
-                </Button> */}
               </Form>
             </Card.Body>
           </Card>
