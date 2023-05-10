@@ -5,7 +5,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getTokenLogin } from "../api/Login.api";
-import Color from "../constants/colors";
 function LoginPage({ role }) {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
@@ -24,14 +23,13 @@ function LoginPage({ role }) {
         if (res.token) {
           await toast.success("Login successfully !");
           window.sessionStorage.setItem("tokenAdmin", res.token);
+          res.id && window.sessionStorage.setItem("idClient", res.id);
           res.role === 1 ? navigate("/Manager/") : navigate("/Client/");
         } else {
-          // toast.error("Login fail !");
         }
       } catch (error) {
         toast.error("Login fail !");
       }
-      // navigate("/Manager/");
     };
     _getToken();
   };

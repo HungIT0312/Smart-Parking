@@ -17,9 +17,9 @@ const Manager = () => {
     Lots: Lots,
   };
   useEffect(() => {
-    const newSocket = new WebSocket("ws://192.168.5.147:8000/ws/test_channel/");
+    const newSocket = new WebSocket("ws://172.20.10.7:8000/ws/test_channel/");
     const parkingSocket = new WebSocket(
-      "ws://192.168.5.147:8000/ws/slot_channel/"
+      "ws://172.20.10.7:8000/ws/slot_channel/"
     );
     setSocketParking(parkingSocket);
     setSocketClient(newSocket);

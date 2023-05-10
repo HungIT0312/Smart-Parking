@@ -26,7 +26,7 @@ function Lot(props) {
               borderRadius: "100%",
               color: "#00000",
               background: `${
-                props.status === "1"
+                props.status === "0"
                   ? Color.backgroundLotFull
                   : Color.backgroundLotEmpty
               }`,

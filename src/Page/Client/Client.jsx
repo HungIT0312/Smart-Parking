@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import NavBar from "../../Components/NavBar";
 import AuthClient from "../../helper/AuthClient";
 import { clientRoute } from "../../routes/route";
@@ -11,13 +11,12 @@ const ClientPage = () => {
   const [Lots, setLots] = useState();
   const [socketParking, setSocketParking] = useState(null);
   const data = {
-    Clients: Clients,
     Lots: Lots,
   };
   useEffect(() => {
-    const newSocket = new WebSocket("ws://192.168.5.147:8000/ws/test_channel/");
+    const newSocket = new WebSocket("ws://172.20.10.7:8000/ws/test_channel/");
     const parkingSocket = new WebSocket(
-      "ws://192.168.5.147:8000/ws/slot_channel/"
+      "ws://172.20.10.7:8000/ws/slot_channel/"
     );
     setSocketParking(parkingSocket);
 

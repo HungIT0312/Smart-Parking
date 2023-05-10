@@ -8,32 +8,32 @@ import {
   // Image,
   Row,
 } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getAccountById } from "../../api/Client/Profile";
 import { updateAccount } from "../../api/Manager/Account.api";
 export default function Profile(props) {
   const [client, setClient] = useState({});
   const [vehicle, setVehicle] = useState({});
-  const { clientId } = useParams();
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
   const [repeatePass, setRepeatePass] = useState("");
   const [confirmMess, setConfirmMess] = useState("");
-  const [token, setToken] = useState(sessionStorage.getItem("tokenClient"));
+  const data = useOutletContext();
   useEffect(() => {
-    // const _getProfile = async () => {
-    //   const res = await getAccountById();
-    //   console.log(res);
-    // };
-    // _getProfile();
+    const id = sessionStorage.getItem("idClient");
+    const _getProfile = async () => {
+      const res = await getAccountById(id);
+      setClient(res.user[0]);
+      setVehicle(res.vehicle[0]);
+    };
+    _getProfile();
   }, []);
   const handleEditClick = () => {
     setIsEditing((prevState) => !prevState);
     if (isEditing) {
       try {
         const _updateClient = async () => {
-          console.log(client);
           const res = await updateAccount(client);
           setClient(res);
           toast.success("Client information updated successfully!");
