@@ -14,5 +14,9 @@ export default function AuthClient(props) {
       toast.warning("Please login first!", { autoClose: 1000 });
     }
   }, []);
-  return <Container fluid>{props.children}</Container>;
+  return (
+    <Container fluid style={{ padding: 0 }}>
+      {props.children}
+    </Container>
+  );
 }

@@ -7,13 +7,7 @@ import { clientRoute } from "../../routes/route";
 import AuthClient from "../../helper/AuthClient";
 const ClientPage = () => {
   return (
-    <AuthClient
-      className=""
-      style={{
-        backgroundColor: Color.backgroundColor,
-        minHeight: "100vh",
-      }}
-    >
+    <AuthClient>
       <NavBar role={0} route={clientRoute} />
       <Outlet />
     </AuthClient>

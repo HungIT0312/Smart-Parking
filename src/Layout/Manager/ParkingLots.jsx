@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { getLots } from "../../api/Lots.api";
+// import { getLots } from "../../api/Lots.api";
 import Lot from "../../Components/Lot";
 import { Card, Col, Container, Row } from "react-bootstrap";
 import Color from "../../constants/colors";
@@ -8,13 +8,7 @@ import Color from "../../constants/colors";
 const ParkingLots = () => {
   const [Lots, setLots] = useState();
   try {
-    useEffect(() => {
-      const _getParkigLot = async () => {
-        const res = await getLots();
-        setLots(res);
-      };
-      _getParkigLot();
-    }, []);
+    // useEffect(() => {}, []);
   } catch (error) {
     console.log(error);
   }
