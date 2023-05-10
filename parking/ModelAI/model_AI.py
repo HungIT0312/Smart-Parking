@@ -24,7 +24,7 @@ def mode_AI(img):
     try:
         _, LpImg, lp_type = detect_lp(wpod_net, im2single(Ivehicle), bound_dim, lp_threshold=0.5)
     except Exception:
-        print("Không nhận diện được biển số")
+        return "None"
         sys.exit(1)
 
     # Cau hinh tham so cho model SVM

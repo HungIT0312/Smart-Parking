@@ -146,7 +146,6 @@ class LogApiView(APIView):
             
             # lấy link ảnh
             cloudinary_url = uploaded_image['secure_url']
-            # cloudinary_url = "https://res.cloudinary.com/dzdfqqdxs/image/upload/v1681454668/image/license_plate_upload/30F50483%202023-04-14%2006:44:32.154835%2B00:00.jpg.jpg"
             arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
             image = cv2.imdecode(arr, -1) 
             
@@ -186,9 +185,11 @@ class LogApiView(APIView):
                     logSerializer.save()
             # Upload ảnh lên cloud
             vehicle = Vehicle.objects.filter(license_plate = resultDetection).first()
-            user = Account.objects.filter(email=vehicle.user).first()
+            print(vehicle)
+
             if vehicle is not None:
-                new_filename =checkin_path + "check in-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
+                user = Account.objects.filter(email=vehicle.user).first()
+                new_filename =checkin_path + "check in-" + resultDetection + " " +  str(timezone.now())
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
                 message = {
@@ -197,7 +198,7 @@ class LogApiView(APIView):
                     "email": user.email,
                     "license_plate": resultDetection,
                     "date_joined": user.date_joined.isoformat(),
-                    "image": cloudinary_url
+                    "image": uploaded_image['secure_url']
                 }
                 
                 socketMessage = {
@@ -215,9 +216,15 @@ class LogApiView(APIView):
                 new_filename =checkin_path + "check in-" +resultDetection + " " +  str(timezone.now()) +  ".jpg"
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
+                
+                message = {
+                    "notification": "This vehicle is not registered",
+                    "image": uploaded_image['secure_url']
+                }
+                
                 socketMessage = {
                 "type": "connection_established",
-                "message": cloudinary_url
+                "message": message
                 }
             
                 channel_layer = get_channel_layer()
@@ -231,6 +238,7 @@ class LogApiView(APIView):
     
     def put(self, request):
         # xử lí checkout ....
+        print("CHECKOUT")
         serializer = ImageSerializer(data=request.data)
         resultDetection = ""
         if serializer.is_valid():
@@ -241,8 +249,10 @@ class LogApiView(APIView):
             image = cv2.imdecode(arr, -1) 
             if image is not None:
                 resultDetection = model_AI.mode_AI(image)
+                print(resultDetection)
             else:
                 print('Failed to load image from Cloudinary')
+        
         
         my_data = {'vehicle': resultDetection}
         vehicle = my_data['vehicle']
@@ -276,6 +286,7 @@ class SlotUpdate(APIView):
         var2 = request.POST.get('var2')
         var3 = request.POST.get('var3')
         var4 = request.POST.get('var4')
+        varList = ""
         varList = [var1,var2,var3,var4]
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
@@ -296,9 +307,12 @@ class CustomObtainAuthToken(ObtainAuthToken):
     serializer_class = AccountSerializer
     def post(self, request, *args, **kwargs):
         # Lấy dữ liệu POST request
+        headers = request.META  # Lấy tất cả các header
+        print(headers)
         email = request.data.get('email')
         password = request.data.get('password')
         print(request.data)
+ 
         # Kiểm tra email và mật khẩu hợp lệ
         if email is None or password is None:
             return Response({'error': 'Please provide both username and password'},
@@ -314,11 +328,11 @@ class CustomObtainAuthToken(ObtainAuthToken):
         token, created = Token.objects.get_or_create(user=user)
         account = Account.objects.filter(email=email).first()
         return Response({'token': token.key,
-                         "role": 1 if account.is_staff == True else 0})
+                         "role": 1 if account.is_staff == True else 0,
+                         "id": account.id})
     
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
-
     def post(self, request):
         request.user.auth_token.delete()
         return Response("Token is deleted",status=200)
