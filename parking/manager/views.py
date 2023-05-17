@@ -172,45 +172,60 @@ class LogApiView(APIView):
             print(resultDetection)
 
             # Định dạng dữ liệu log
-            my_data = {'vehicle': resultDetection,
-                       'image_in': cloudinary_url}
-            logSerializer = LogSerializer(data=my_data)
-            vehicle_id = my_data['vehicle']
-            log = Log.objects.filter(vehicle=vehicle_id, time_out__isnull=True).first()
-            # Kiểm tra có tồn tại xe tại bãi chưa
-            if log is not None and log.time_out is None:
-                 return Response("This vehicle is existed",status=400)
-            else:
-                if logSerializer.is_valid():
-                    logSerializer.save()
+           
             # Upload ảnh lên cloud
             vehicle = Vehicle.objects.filter(license_plate = resultDetection).first()
             print(vehicle)
 
             if vehicle is not None:
+                my_data = {'vehicle': resultDetection,
+                        'image_in': cloudinary_url}
+                logSerializer = LogSerializer(data=my_data)
+                vehicle_id = my_data['vehicle']
+                log = Log.objects.filter(vehicle=vehicle_id, time_out__isnull=True).first()
                 user = Account.objects.filter(email=vehicle.user).first()
                 new_filename =checkin_path + "check in-" + resultDetection + " " +  str(timezone.now())
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
-                message = {
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                    "email": user.email,
-                    "license_plate": resultDetection,
-                    "date_joined": user.date_joined.isoformat(),
-                    "image": uploaded_image['secure_url']
-                }
+                # Kiểm tra có tồn tại xe tại bãi chưa
+                if log is not None and log.time_out is None:
+                    message = {
+                        "notification": "This vehicle is existed",
+                        "image": uploaded_image['secure_url']
+                    }
+                    
+                    socketMessage = {
+                    "type": "connection_established",
+                    "message": message
+                    }
                 
-                socketMessage = {
-                "type": "connection_established",
-                "message": message
-                }
-            
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)(
-                "test_channel",socketMessage
-                )
-                return Response(1,status=201)
+                    channel_layer = get_channel_layer()
+                    async_to_sync(channel_layer.group_send)(
+                    "test_channel",socketMessage
+                    )
+                    return Response(0, status=400)  
+                else:
+                    if logSerializer.is_valid():
+                        logSerializer.save()
+                    message = {
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                        "email": user.email,
+                        "license_plate": resultDetection,
+                        "date_joined": user.date_joined.isoformat(),
+                        "image": uploaded_image['secure_url']
+                    }
+                    
+                    socketMessage = {
+                    "type": "connection_established",
+                    "message": message
+                    }
+                
+                    channel_layer = get_channel_layer()
+                    async_to_sync(channel_layer.group_send)(
+                    "test_channel",socketMessage
+                    )
+                    return Response(1,status=201)
             else:
                 resultDetection = resultDetection + "(unregister)"
                 new_filename =checkin_path + "check in-" +resultDetection + " " +  str(timezone.now()) +  ".jpg"
@@ -307,8 +322,8 @@ class CustomObtainAuthToken(ObtainAuthToken):
     serializer_class = AccountSerializer
     def post(self, request, *args, **kwargs):
         # Lấy dữ liệu POST request
-        headers = request.META  # Lấy tất cả các header
-        print(headers)
+        # headers = request.META  # Lấy tất cả các header
+        # print(headers)
         email = request.data.get('email')
         password = request.data.get('password')
         print(request.data)
