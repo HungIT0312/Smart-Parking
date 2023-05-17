@@ -6,6 +6,7 @@ import AuthClient from "../../helper/AuthClient";
 import { clientRoute } from "../../routes/route";
 import { useState } from "react";
 import { useEffect } from "react";
+import { URL_SERVER } from "../../utils/path";
 const ClientPage = () => {
   const [Clients, setClients] = useState();
   const [Lots, setLots] = useState();
@@ -14,10 +15,8 @@ const ClientPage = () => {
     Lots: Lots,
   };
   useEffect(() => {
-    const newSocket = new WebSocket("ws://172.20.10.7:8000/ws/test_channel/");
-    const parkingSocket = new WebSocket(
-      "ws://172.20.10.7:8000/ws/slot_channel/"
-    );
+    const newSocket = new WebSocket(`ws://${URL_SERVER}/ws/test_channel/`);
+    const parkingSocket = new WebSocket(`ws://${URL_SERVER}/ws/slot_channel/`);
     setSocketParking(parkingSocket);
 
     return () => {
