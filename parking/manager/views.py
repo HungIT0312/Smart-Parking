@@ -161,21 +161,22 @@ class LogApiView(APIView):
                 try:
                     resultDetection = model_AI.mode_AI(image)
                 except:
-                    return Response(0,status=201)
+                    return Response(2,status=201)
                 # cv2.imshow('Image from Cloudinary', image)
                 # cv2.waitKey(0)
                 # cv2.destroyAllWindows()
             else:
                 print('Failed to load image from Cloudinary')
-                
-            # websocket
+            
             print(resultDetection)
+            if resultDetection == "None":
+                return Response("N",status=201)
+
 
             # Định dạng dữ liệu log
            
             # Upload ảnh lên cloud
             vehicle = Vehicle.objects.filter(license_plate = resultDetection).first()
-            print(vehicle)
 
             if vehicle is not None:
                 my_data = {'vehicle': resultDetection,
@@ -225,8 +226,9 @@ class LogApiView(APIView):
                     async_to_sync(channel_layer.group_send)(
                     "test_channel",socketMessage
                     )
-                    return Response(1,status=201)
+                    return Response("1 " + vehicle_id,status=201)
             else:
+                license_response = resultDetection
                 resultDetection = resultDetection + "(unregister)"
                 new_filename =checkin_path + "check in-" +resultDetection + " " +  str(timezone.now()) +  ".jpg"
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
@@ -246,7 +248,7 @@ class LogApiView(APIView):
                 async_to_sync(channel_layer.group_send)(
                 "test_channel",socketMessage
                 )
-                return Response(0, status=400)                 
+                return Response("0 " + license_response, status=400)                 
         else:
             return Response(0, status=400)
         
