@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+.nav__item {
+    color: #636f7f !important;
+}
+
+.nav__item:hover * {
+    color: #8f9ba9 !important;
+}
+
+.item__name {
+    color: #636f7f !important;
+}
+
+.active_link * {
+    color: white !important;
+}
+
+.nav__header {
+    color: #636f7f;
+    margin-left: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    padding-left: 16px;
+    font-family: "Roboto", sans-serif !important;
+
+}

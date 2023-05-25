@@ -42,9 +42,9 @@ const License = () => {
             </Card.Body>
           </Card>
         </Col>
-        <Col className="col-sm-12 col-md-6 mt-5" xs={12} md={6}>
+        <Col className="col-sm-12 col-md-6 mt-5 " xs={12} md={6}>
           <Card
-            className="h-100 "
+            className="h-100 me-3"
             style={{ boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px" }}
           >
             <Card.Header
@@ -56,7 +56,7 @@ const License = () => {
             >
               Client information
             </Card.Header>
-            <Card.Body className="p-5">
+            <Card.Body className="py-5">
               <Form name="formManage">
                 <Form.Group controlId="formBasicEmail">
                   <Row>

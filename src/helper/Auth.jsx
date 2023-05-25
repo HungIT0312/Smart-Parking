@@ -14,7 +14,7 @@ export default function Auth(props) {
   });
 
   return (
-    <Container fluid style={{ padding: 0 }}>
+    <Container className="p-0 overflow-hidden" fluid>
       <ToastContainer position="top-right" />
       {props.children}
     </Container>

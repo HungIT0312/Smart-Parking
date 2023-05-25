@@ -18,8 +18,9 @@ function LoginPage({ role }) {
     };
     const _getToken = async () => {
       try {
+        // window.sessionStorage.setItem("tokenAdmin", "1");
+
         const res = await getTokenLogin(data);
-        console.log(res);
         if (res.token) {
           await toast.success("Login successfully !");
           window.sessionStorage.setItem("tokenAdmin", res.token);

@@ -1,13 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import { Outlet } from "react-router-dom";
-import NavBar from "../../Components/NavBar";
 import Color from "../../constants/colors";
 import Auth from "../../helper/Auth";
 import { routeConf } from "../../routes/route";
 import { useEffect } from "react";
 import { useState } from "react";
 import { URL_SERVER } from "../../utils/path";
+import SideMenu from "../../Components/SideMenu";
+import { Col, Row } from "react-bootstrap";
 const Manager = () => {
   const [Clients, setClients] = useState();
   const [Lots, setLots] = useState();
@@ -64,14 +65,18 @@ const Manager = () => {
   }, [socketClient, socketParking]);
   return (
     <Auth
-      className=""
       style={{
         backgroundColor: Color.backgroundColor,
-        minHeight: "100vh",
       }}
     >
-      <NavBar route={routeConf} />
-      <Outlet context={data} />
+      <Row className="h-100 ">
+        <Col md={2} className="p-0">
+          <SideMenu route={routeConf} />
+        </Col>
+        <Col className="p-0">
+          <Outlet context={data} />
+        </Col>
+      </Row>
     </Auth>
   );
 };
