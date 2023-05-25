@@ -1,7 +1,7 @@
 const Color = {
   Stroke: "#094067",
   button: "#3da9fc",
-  backgroundColor: "#f8f9fc",
+  backgroundColor: "#edf1f7",
   buttonText: "#fffffe",
   paragraph: "#000",
   secondary: "#90b4ce",

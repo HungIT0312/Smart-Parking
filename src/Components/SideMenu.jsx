@@ -47,13 +47,16 @@ export default function SideMenu(props) {
     routes &&
     routes.map((route, index) => {
       return (
-        <Nav.Item key={index} className=" d-block nav__item ms-3  ">
+        <Nav.Item
+          key={index}
+          className={` d-block nav__item ms-3  ${
+            activeLink === "/Manager/" + route.name ? "active_link" : ""
+          } `}
+        >
           <Link
             to={route.to}
             onClick={handleClick}
-            className={`d-flex align-items-center  ms-3 text-decoration-none py-2 ${
-              activeLink === "/Manager/" + route.name ? "active_link" : ""
-            }`}
+            className="d-flex align-items-center  ms-3 text-decoration-none py-2"
           >
             <div className="me-1 w-25 item__icon">{route.icon}</div>
             <div className="item__name">{route.name}</div>

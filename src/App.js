@@ -12,6 +12,7 @@ import LoginPage from "./Page/Login";
 import Manager from "./Page/Manager/Manager";
 import Register from "./Page/Register";
 import Profile from "./Layout/Client/Profile";
+import Vehicle from "./Layout/Client/Vehicle";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="*" element={<Error />}></Route>
           <Route path="Profile" element={<Profile />} />
           <Route path="Parking" element={<ParkingLots />} />
+          <Route path="Vehicle" element={<Vehicle />} />
         </Route>
         <Route path="*" element={<Navigate to="/Client" replace />} />
       </Routes>

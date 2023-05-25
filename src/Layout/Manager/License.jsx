@@ -14,6 +14,7 @@ import {
 import { useOutletContext } from "react-router-dom";
 import image from "../../assets/imagePlaceHolder.png";
 import Color from "../../constants/colors.js";
+import { BsCamera } from "react-icons/bs";
 import { useState } from "react";
 const License = () => {
   const data = useOutletContext();
@@ -37,8 +38,19 @@ const License = () => {
             >
               Vehicle information
             </Card.Header>
-            <Card.Body className="p-3 d-flex justify-content-center ">
+            <Card.Body className="p-3 d-flex flex-column align-items-center justify-content-center ">
               <Image src={data?.Clients?.image || image} thumbnail fluid />
+              <Button
+                style={{
+                  background: "#8CEE8B",
+                  color: "#0E6A0B",
+                  border: "none",
+                }}
+                className="mt-2 d-flex align-items-center justify-content-center"
+              >
+                <BsCamera size={24} color="#0E6A0B" className="me-2" />
+                Capture
+              </Button>
             </Card.Body>
           </Card>
         </Col>
@@ -115,11 +127,7 @@ const License = () => {
                 </FormGroup>
 
                 <div className="d-flex justify-content-center mt-3">
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    className="align-items-center"
-                  >
+                  <Button variant="primary" className="align-items-center">
                     Confirm
                   </Button>
                 </div>

@@ -8,6 +8,7 @@ import "../assets/styles/LeftAlign.scss";
 import { logoutManager } from "../api/Manager/LogOut.api";
 // import { IconBase } from "react-icons";
 import { FiLogOut } from "react-icons/fi";
+import { useEffect } from "react";
 const NavBar = (props) => {
   const [route, setRoute] = useState(props.route);
   const [activeLink, setActiveLink] = useState("");
@@ -25,6 +26,10 @@ const NavBar = (props) => {
     };
     _LogOut();
   };
+  useEffect(() => {
+    setActiveLink(window.location.pathname);
+  }, []);
+
   const handleLogoutAdmin = (event) => {
     event.preventDefault();
     const _LogOut = async () => {
@@ -47,7 +52,7 @@ const NavBar = (props) => {
         >
           <Link
             className={`nav-link ${
-              activeLink === "/Manager/" + menuItem.name ? "active" : ""
+              activeLink === "/Client/" + menuItem.name ? "active" : ""
             }`}
             to={menuItem.to}
             onClick={handleClick}

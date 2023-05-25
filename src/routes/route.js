@@ -33,6 +33,10 @@ const clientRoute = [
     name: "Profile",
     to: "/Client/Profile",
   },
+  {
+    name: "Vehicle",
+    to: "/Client/Vehicle",
+  },
 ];
 export { routeConf };
 export { clientRoute };
