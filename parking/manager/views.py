@@ -24,7 +24,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import action
-
+from django.db import transaction
 
 from ModelAI import model_AI, lib_findcontours, lib_detection
 import cloudinary.utils
@@ -155,7 +155,6 @@ class LogApiView(APIView):
             duong_dan_luu = folder_url + name_image
             cv2.imwrite(duong_dan_luu, image)
             
-
             resultDetection = ""
             if image is not None:
                 try:
@@ -171,22 +170,19 @@ class LogApiView(APIView):
             print(resultDetection)
             if resultDetection == "None":
                 return Response("N",status=201)
-
-
-            # Định dạng dữ liệu log
            
             # Upload ảnh lên cloud
             vehicle = Vehicle.objects.filter(license_plate = resultDetection).first()
 
             if vehicle is not None:
-                my_data = {'vehicle': resultDetection,
-                        'image_in': cloudinary_url}
-                logSerializer = LogSerializer(data=my_data)
-                vehicle_id = my_data['vehicle']
+                vehicle_id = resultDetection
                 log = Log.objects.filter(vehicle=vehicle_id, time_out__isnull=True).first()
                 user = Account.objects.filter(email=vehicle.user).first()
                 new_filename =checkin_path + "check in-" + resultDetection + " " +  str(timezone.now())
                 uploaded_image = rename(uploaded_image['public_id'], new_filename)
+                my_data = {'vehicle': resultDetection,
+                        'image_in': uploaded_image['secure_url']}
+                logSerializer = LogSerializer(data=my_data)
                 serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
                 # Kiểm tra có tồn tại xe tại bãi chưa
                 if log is not None and log.time_out is None:
@@ -255,53 +251,33 @@ class LogApiView(APIView):
     
     def put(self, request):
         # xử lí checkout ....
-        # print("CHECKOUT")
-        # serializer = ImageSerializer(data=request.data)
-        # resultDetection = ""
-        # if serializer.is_valid():
-        #     image = request.data.get('image')
-        #     uploaded_image = upload(image, folder='image/cars-checkout')
-        #     cloudinary_url = uploaded_image['secure_url']
-        #     arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
-        #     image = cv2.imdecode(arr, -1) 
-        #     if image is not None:
-        #         resultDetection = model_AI.mode_AI(image)
-        #         print(resultDetection)
-        #     else:
-        #         print('Failed to load image from Cloudinary')
-        # my_data = {'vehicle': resultDetection}
-        # vehicle = my_data['vehicle']
-        # try:
-        #     log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
-        # except Log.DoesNotExist:
-        #     return Response(0,status=status.HTTP_404_NOT_FOUND)
-        # serializer = LogSerializer(log, data=my_data, partial=True)
-        # if serializer.is_valid():
-        #     new_filename =checkout_path + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
-        #     uploaded_image = rename(uploaded_image['public_id'], new_filename)
-        #     serializer.save()
-        #     return Response(1 ,status=status.HTTP_201_CREATED)
+        print("CHECKOUT")
+        serializer = ImageSerializer(data=request.data)
+        resultDetection = ""
+        if serializer.is_valid():
+            image = request.data.get('image')
+            uploaded_image = upload(image, folder='image/cars-checkout')
+            cloudinary_url = uploaded_image['secure_url']
+            arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
+            image = cv2.imdecode(arr, -1) 
+            if image is not None:
+                resultDetection = model_AI.mode_AI(image)
+                print(resultDetection)
+            else:
+                print('Failed to load image from Cloudinary')
+        my_data = {'vehicle': resultDetection}
+        vehicle = my_data['vehicle']
+        try:
+            log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
+        except Log.DoesNotExist:
+            return Response(0,status=status.HTTP_404_NOT_FOUND)
+        serializer = LogSerializer(log, data=my_data, partial=True)
+        if serializer.is_valid():
+            new_filename =checkout_path + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
+            uploaded_image = rename(uploaded_image['public_id'], new_filename)
+            serializer.save()
+            return Response(1 ,status=status.HTTP_201_CREATED)
         
-        isCheckAgain = request.data.get("check")
-        if isCheckAgain:
-            old_vehicle = request.data.get("old")
-            new_vehicle = request.data.get("new")
-            old_log = Log.objects.filter(vehicle=old_vehicle, time_out__isnull=True).first()
-            update_data = {
-                'vehicle': new_vehicle,
-                'time_in': timezone.now().isoformat(),
-                'time_out': timezone.now().isoformat(),
-            }
-            print(update_data)
-            serializer = LogSerializer(old_log, data=update_data, partial=True)
-            print(serializer)
-            if serializer.is_valid():
-                print("OKOKOKO")
-                serializer.save()
-                return Response(1 ,status=status.HTTP_201_CREATED)
-            return Response(2 ,status=status.HTTP_201_CREATED)
-        return Response(0 ,status=status.HTTP_400_BAD_REQUEST)
-    
     def delete(self,request):
         ids = json.loads(request.body)["ids"]    
         for id in ids:
@@ -311,6 +287,40 @@ class LogApiView(APIView):
                 return Response(status=status.HTTP_404_NOT_FOUND)
             log.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class AddAgain(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request):
+        isCheckAgain = request.data.get("check")
+        if isCheckAgain:
+            old_vehicle = request.data.get("old")
+            new_vehicle = request.data.get("new")
+            try:
+                old_log = Log.objects.filter(vehicle=old_vehicle, time_out__isnull=True).first()
+                img_path = old_log.image_in
+            except Log.DoesNotExist:
+                return Response("Log does not exist", status=status.HTTP_404_NOT_FOUND)
+
+            # Xóa đối tượng cũ trong một transaction riêng biệt
+            with transaction.atomic():
+                old_log.delete()
+                print("delete success")
+
+            # Tạo đối tượng mới trong một transaction riêng biệt
+            with transaction.atomic():
+                new_data = {
+                    'vehicle': new_vehicle,
+                    'image_in': img_path
+                }
+                logSerializer = LogSerializer(data=new_data)
+                if logSerializer.is_valid():
+                    logSerializer.save()
+                    return Response("Success", status=status.HTTP_201_CREATED)
+                else:
+                    print(logSerializer.errors)
+                    return Response("Not valid", status=status.HTTP_201_CREATED)
+        
+        return Response("Fail", status=status.HTTP_404_NOT_FOUND)
     
 class IdentifyApiView(APIView):
     permission_classes = (permissions.AllowAny,)

@@ -28,9 +28,6 @@ class Vehicle(models.Model):
     def __str__(self) -> str:
         return f"{self.user_id} - {self.license_plate}"
     
-
-
-
 class Log(models.Model):
     time_in = models.DateTimeField(null=True, blank=True)
     time_out = models.DateTimeField(null=True, blank=True)

@@ -12,9 +12,10 @@ urlpatterns = [
     path("account/", views.AccountApiView.as_view()),
     path("logs/", views.LogApiView.as_view()),# check in
     path("hello-world/", views.HelloWorld.as_view()),
-    path("identify/", views.IdentifyApiView.as_view()),
+    path("identify/", views.IdentifyApiView.as_view()), #nhận diện
     path("login/", CustomObtainAuthToken.as_view(), name='token_obtain_pair'),
     path("logout/", views.LogoutView.as_view()),
     path("update-slot/", views.SlotUpdate.as_view()),
-    path("check/", views.CheckAgain.as_view()),
+    path("check/", views.CheckAgain.as_view()), # chụp lại
+    path("add-again/", views.AddAgain.as_view()), # thêm log sau khi chụp lại
 ]
