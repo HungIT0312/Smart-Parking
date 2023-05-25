@@ -29,10 +29,10 @@ class LogSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['time_in'] = timezone.now()
         return super().create(validated_data)
-    def update(self, instance, validated_data):
-        instance.time_out = timezone.now()
-        instance.save()
-        return instance
+    # def update(self, instance, validated_data):
+    #     instance.time_out = timezone.now()
+    #     instance.save()
+    #     return instance
         
 class VehicleSerializer(serializers.ModelSerializer):
     class Meta:

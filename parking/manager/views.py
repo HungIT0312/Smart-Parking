@@ -23,7 +23,7 @@ import urllib.request
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login
-
+from rest_framework.decorators import action
 
 
 from ModelAI import model_AI, lib_findcontours, lib_detection
@@ -255,34 +255,51 @@ class LogApiView(APIView):
     
     def put(self, request):
         # xử lí checkout ....
-        print("CHECKOUT")
-        serializer = ImageSerializer(data=request.data)
-        resultDetection = ""
-        if serializer.is_valid():
-            image = request.data.get('image')
-            uploaded_image = upload(image, folder='image/cars-checkout')
-            cloudinary_url = uploaded_image['secure_url']
-            arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
-            image = cv2.imdecode(arr, -1) 
-            if image is not None:
-                resultDetection = model_AI.mode_AI(image)
-                print(resultDetection)
-            else:
-                print('Failed to load image from Cloudinary')
+        # print("CHECKOUT")
+        # serializer = ImageSerializer(data=request.data)
+        # resultDetection = ""
+        # if serializer.is_valid():
+        #     image = request.data.get('image')
+        #     uploaded_image = upload(image, folder='image/cars-checkout')
+        #     cloudinary_url = uploaded_image['secure_url']
+        #     arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
+        #     image = cv2.imdecode(arr, -1) 
+        #     if image is not None:
+        #         resultDetection = model_AI.mode_AI(image)
+        #         print(resultDetection)
+        #     else:
+        #         print('Failed to load image from Cloudinary')
+        # my_data = {'vehicle': resultDetection}
+        # vehicle = my_data['vehicle']
+        # try:
+        #     log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
+        # except Log.DoesNotExist:
+        #     return Response(0,status=status.HTTP_404_NOT_FOUND)
+        # serializer = LogSerializer(log, data=my_data, partial=True)
+        # if serializer.is_valid():
+        #     new_filename =checkout_path + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
+        #     uploaded_image = rename(uploaded_image['public_id'], new_filename)
+        #     serializer.save()
+        #     return Response(1 ,status=status.HTTP_201_CREATED)
         
-        
-        my_data = {'vehicle': resultDetection}
-        vehicle = my_data['vehicle']
-        try:
-            log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
-        except Log.DoesNotExist:
-            return Response(0,status=status.HTTP_404_NOT_FOUND)
-        serializer = LogSerializer(log, data=my_data, partial=True)
-        if serializer.is_valid():
-            new_filename =checkout_path + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
-            uploaded_image = rename(uploaded_image['public_id'], new_filename)
-            serializer.save()
-            return Response(1 ,status=status.HTTP_201_CREATED)
+        isCheckAgain = request.data.get("check")
+        if isCheckAgain:
+            old_vehicle = request.data.get("old")
+            new_vehicle = request.data.get("new")
+            old_log = Log.objects.filter(vehicle=old_vehicle, time_out__isnull=True).first()
+            update_data = {
+                'vehicle': new_vehicle,
+                'time_in': timezone.now().isoformat(),
+                'time_out': timezone.now().isoformat(),
+            }
+            print(update_data)
+            serializer = LogSerializer(old_log, data=update_data, partial=True)
+            print(serializer)
+            if serializer.is_valid():
+                print("OKOKOKO")
+                serializer.save()
+                return Response(1 ,status=status.HTTP_201_CREATED)
+            return Response(2 ,status=status.HTTP_201_CREATED)
         return Response(0 ,status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self,request):
@@ -295,6 +312,64 @@ class LogApiView(APIView):
             log.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+class IdentifyApiView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request):
+        print("HAVE REQUEST")
+        serializer = ImageSerializer(data=request.data)
+        if serializer.is_valid():
+            image = request.data.get('image')
+            
+            # upload ảnh lên cloud
+            uploaded_image = upload(image, folder=checkin_path)
+            
+            # lấy link ảnh
+            cloudinary_url = uploaded_image['secure_url']
+            arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
+            image = cv2.imdecode(arr, -1) 
+            
+            # lưu ảnh vào thư mục
+            folder_url = 'static/image/'
+            name_image = "image-temp.jpg"
+            duong_dan_luu = folder_url + name_image
+            cv2.imwrite(duong_dan_luu, image)
+        
+            resultDetection = ""
+            if image is not None:
+                try:
+                    resultDetection = model_AI.mode_AI(image)
+                except:
+                    return Response(2,status=201)
+            else:
+                print('Failed to load image from Cloudinary')
+            print(resultDetection)
+            if resultDetection == "None":
+                return Response("N",status=201)
+            vehicle = Vehicle.objects.filter(license_plate=resultDetection).first()
+            print(vehicle)
+            if vehicle is None:
+                return Response("0 " + resultDetection,status=status.HTTP_404_NOT_FOUND)
+            return Response("1 " + resultDetection ,status=status.HTTP_400_BAD_REQUEST)
+        
+class CheckAgain(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request):       
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+        "check_channel",
+        {
+            "type": "check_again",
+            "message": 1
+        }
+        )
+        num_channels_processed = 0
+        group_name = "check_again"
+        while num_channels_processed < len([channel_name for channel_name in channel_layer.channels.keys() if channel_name.startswith(f"group-{group_name}-")]):
+            time.sleep(0.1)
+            num_channels_processed = len([channel_name for channel_name in channel_layer.channels.keys() if channel_name.startswith(f"group-{group_name}-")])
+        return Response(status=status.HTTP_200_OK)
+        
+
     
 class SlotUpdate(APIView):
     permission_classes = (permissions.AllowAny,)
