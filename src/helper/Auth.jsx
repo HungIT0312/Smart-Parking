@@ -15,7 +15,7 @@ export default function Auth(props) {
 
   return (
     <Container className="p-0 overflow-hidden" fluid>
-      <ToastContainer position="top-right" />
+      {/* <ToastContainer position="top-right" /> */}
       {props.children}
     </Container>
   );
