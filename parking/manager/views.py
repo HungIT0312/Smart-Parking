@@ -3,6 +3,8 @@ import time
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
+
+from .utils import *
 from .models import *
 from .serializers import *
 from rest_framework.views import APIView
@@ -136,118 +138,17 @@ class LogApiView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
-        print("HAVE REQUEST")
-        serializer = ImageSerializer(data=request.data)
-        if serializer.is_valid():
-            image = request.data.get('image')
-            
-            # upload ảnh lên cloud
-            uploaded_image = upload(image, folder=checkin_path)
-            
-            # lấy link ảnh
-            cloudinary_url = uploaded_image['secure_url']
-            arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
-            image = cv2.imdecode(arr, -1) 
-            
-            # lưu ảnh vào thư mục
-            folder_url = 'static/image/'
-            name_image = "image-temp.jpg"
-            duong_dan_luu = folder_url + name_image
-            cv2.imwrite(duong_dan_luu, image)
-            
-            resultDetection = ""
-            if image is not None:
-                try:
-                    resultDetection = model_AI.mode_AI(image)
-                except:
-                    return Response(2,status=201)
-                # cv2.imshow('Image from Cloudinary', image)
-                # cv2.waitKey(0)
-                # cv2.destroyAllWindows()
-            else:
-                print('Failed to load image from Cloudinary')
-            
-            print(resultDetection)
-            if resultDetection == "None":
-                return Response("N",status=201)
-           
-            # Upload ảnh lên cloud
-            vehicle = Vehicle.objects.filter(license_plate = resultDetection).first()
-
-            if vehicle is not None:
-                vehicle_id = resultDetection
-                log = Log.objects.filter(vehicle=vehicle_id, time_out__isnull=True).first()
-                user = Account.objects.filter(email=vehicle.user).first()
-                new_filename =checkin_path + "check in-" + resultDetection + " " +  str(timezone.now())
-                uploaded_image = rename(uploaded_image['public_id'], new_filename)
-                my_data = {'vehicle': resultDetection,
-                        'image_in': uploaded_image['secure_url']}
-                logSerializer = LogSerializer(data=my_data)
-                serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
-                # Kiểm tra có tồn tại xe tại bãi chưa
-                if log is not None and log.time_out is None:
-                    message = {
-                        "notification": "This vehicle is existed",
-                        "image": uploaded_image['secure_url']
-                    }
-                    
-                    socketMessage = {
-                    "type": "connection_established",
-                    "message": message
-                    }
-                
-                    channel_layer = get_channel_layer()
-                    async_to_sync(channel_layer.group_send)(
-                    "test_channel",socketMessage
-                    )
-                    return Response(0, status=400)  
-                else:
-                    if logSerializer.is_valid():
-                        logSerializer.save()
-                    message = {
-                        "first_name": user.first_name,
-                        "last_name": user.last_name,
-                        "email": user.email,
-                        "license_plate": resultDetection,
-                        "date_joined": user.date_joined.isoformat(),
-                        "image": uploaded_image['secure_url']
-                    }
-                    
-                    socketMessage = {
-                    "type": "connection_established",
-                    "message": message
-                    }
-                
-                    channel_layer = get_channel_layer()
-                    async_to_sync(channel_layer.group_send)(
-                    "test_channel",socketMessage
-                    )
-                    return Response("1 " + vehicle_id,status=201)
-            else:
-                license_response = resultDetection
-                resultDetection = resultDetection + "(unregister)"
-                new_filename =checkin_path + "check in-" +resultDetection + " " +  str(timezone.now()) +  ".jpg"
-                uploaded_image = rename(uploaded_image['public_id'], new_filename)
-                serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
-                
-                message = {
-                    "notification": "This vehicle is not registered",
-                    "image": uploaded_image['secure_url']
-                }
-                
-                socketMessage = {
-                "type": "connection_established",
-                "message": message
-                }
-            
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)(
-                "test_channel",socketMessage
-                )
-                return Response("0 " + license_response, status=400)                 
+        license_plate = request.data.get('license_plate')
+        image = request.data.get('image')
+        my_data = {'vehicle': license_plate,
+                    'image_in': image}
+        logSerializer = LogSerializer(data=my_data)
+        if logSerializer.is_valid():
+            logSerializer.save()
+            send_socket_message(channel_name="check_channel", type="check_again", message=1)  
+            return Response("Add successfully", status=status.HTTP_200_OK)
         else:
-            return Response(0, status=400)
-        
+            return Response(logSerializer.errors, status=status.HTTP_400_BAD_REQUEST)  
     
     def put(self, request):
         # xử lí checkout ....
@@ -256,27 +157,24 @@ class LogApiView(APIView):
         resultDetection = ""
         if serializer.is_valid():
             image = request.data.get('image')
-            uploaded_image = upload(image, folder='image/cars-checkout')
-            cloudinary_url = uploaded_image['secure_url']
-            arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
-            image = cv2.imdecode(arr, -1) 
-            if image is not None:
-                resultDetection = model_AI.mode_AI(image)
-                print(resultDetection)
-            else:
-                print('Failed to load image from Cloudinary')
+            result = identify(image)
+            resultDetection = result['resultDetection']
+            uploaded_image = result['uploaded_image']
+            print(resultDetection)
         my_data = {'vehicle': resultDetection}
         vehicle = my_data['vehicle']
-        try:
-            log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
-        except Log.DoesNotExist:
+        log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
+        if log is not None:
+            serializer = LogSerializer(log, data=my_data, partial=True)
+            if serializer.is_valid():
+                new_filename =checkout_path + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
+                uploaded_image = rename(uploaded_image['public_id'], new_filename)
+                serializer.save()
+                return Response(1 ,status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        else:
             return Response(0,status=status.HTTP_404_NOT_FOUND)
-        serializer = LogSerializer(log, data=my_data, partial=True)
-        if serializer.is_valid():
-            new_filename =checkout_path + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
-            uploaded_image = rename(uploaded_image['public_id'], new_filename)
-            serializer.save()
-            return Response(1 ,status=status.HTTP_201_CREATED)
         
     def delete(self,request):
         ids = json.loads(request.body)["ids"]    
@@ -288,6 +186,72 @@ class LogApiView(APIView):
             log.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+class Checkin(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request):
+        print("HAVE REQUEST")
+        serializer = ImageSerializer(data=request.data)
+        if serializer.is_valid():
+            image = request.data.get('image')
+            result = identify(image)
+            resultDetection = result['resultDetection']
+            uploaded_image = result['uploaded_image']
+            
+            print(resultDetection)
+            if resultDetection == "None":
+                return Response("N",status=201)
+           
+            vehicle = Vehicle.objects.filter(license_plate = resultDetection).first()
+
+            if vehicle is not None: #Xe đã đk
+                vehicle_id = vehicle.license_plate
+                log = Log.objects.filter(vehicle=vehicle_id, time_out__isnull=True).first()
+                user = Account.objects.filter(email=vehicle.user).first()
+                uploaded_image = renameImage(checkin_path, "check in-", vehicle_id, uploaded_image)
+                my_data = {'vehicle': vehicle_id,
+                        'image_in': uploaded_image['secure_url']}
+                logSerializer = LogSerializer(data=my_data)
+                serializer.save(name = vehicle_id,image = uploaded_image['secure_url'])
+                # Kiểm tra có tồn tại xe tại bãi chưa
+                if log is not None and log.time_out is None:#đã tồn tại xe trong bãi
+                    message = {
+                        "notification": "This vehicle is existed",
+                        "image": uploaded_image['secure_url']
+                    }
+                    send_socket_message(channel_name="test_channel", type="connection_established", message=message)
+
+                    return Response(0, status=400)  
+                else:
+                    if logSerializer.is_valid():
+                        logSerializer.save()
+                    message = {
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                        "email": user.email,
+                        "license_plate": vehicle_id,
+                        "result_detection": resultDetection,
+                        "date_joined": user.date_joined.isoformat(),
+                        "image": uploaded_image['secure_url']
+                    }
+                    send_socket_message(channel_name="test_channel", type="connection_established", message=message)
+                    return Response("1 " + vehicle_id,status=201)
+            else:
+                license_response = resultDetection
+                resultDetection = "(unregister)" + resultDetection
+                uploaded_image = renameImage(checkin_path, "check in-", resultDetection, uploaded_image)
+                serializer.save(name = resultDetection,image = uploaded_image['secure_url'])
+                
+                message = {
+                    "notification": "This vehicle is not registered",
+                    "result_detection": resultDetection,
+                    "image": uploaded_image['secure_url']
+                }
+                send_socket_message(channel_name="test_channel", type="connection_established", message=message)
+                return Response("0 " + license_response, status=400)                 
+        else:
+            return Response(0, status=400)
+    
+
 class AddAgain(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self, request):
@@ -319,7 +283,6 @@ class AddAgain(APIView):
                 else:
                     print(logSerializer.errors)
                     return Response("Not valid", status=status.HTTP_201_CREATED)
-        
         return Response("Fail", status=status.HTTP_404_NOT_FOUND)
     
 class IdentifyApiView(APIView):
@@ -363,24 +326,16 @@ class IdentifyApiView(APIView):
         
 class CheckAgain(APIView):
     permission_classes = (permissions.AllowAny,)
-    def post(self, request):       
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-        "check_channel",
-        {
-            "type": "check_again",
-            "message": 1
-        }
-        )
-        num_channels_processed = 0
-        group_name = "check_again"
-        while num_channels_processed < len([channel_name for channel_name in channel_layer.channels.keys() if channel_name.startswith(f"group-{group_name}-")]):
-            time.sleep(0.1)
-            num_channels_processed = len([channel_name for channel_name in channel_layer.channels.keys() if channel_name.startswith(f"group-{group_name}-")])
-        return Response(status=status.HTTP_200_OK)
-        
+    def post(self, request):
+        license_plate = request.data.get('license_plate')
+        log = Log.objects.filter(vehicle=license_plate, time_out__isnull=True).first()
+        if log is not None:
+            log.delete()
+            send_socket_message(channel_name="check_channel", type="check_again", message=0)   
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response("Log does not exist", status=status.HTTP_404_NOT_FOUND)
 
-    
 class SlotUpdate(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self, request):
@@ -388,21 +343,8 @@ class SlotUpdate(APIView):
         var2 = request.POST.get('var2')
         var3 = request.POST.get('var3')
         var4 = request.POST.get('var4')
-        varList = ""
         varList = [var1,var2,var3,var4]
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-        "slot_channel",
-        {
-            "type": "slot_update",
-            "message": varList
-        }
-        )
-        num_channels_processed = 0
-        group_name = "slot_channel"
-        while num_channels_processed < len([channel_name for channel_name in channel_layer.channels.keys() if channel_name.startswith(f"group-{group_name}-")]):
-            time.sleep(0.1)
-            num_channels_processed = len([channel_name for channel_name in channel_layer.channels.keys() if channel_name.startswith(f"group-{group_name}-")])
+        send_socket_message("slot_channel","slot_update", message=varList)
         return Response(status=status.HTTP_200_OK)
 
 class CustomObtainAuthToken(ObtainAuthToken):
@@ -442,3 +384,6 @@ class LogoutView(APIView):
           
 def get_home(request):
     return render(request, "home.html")
+
+
+

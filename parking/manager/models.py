@@ -32,10 +32,9 @@ class Log(models.Model):
     time_in = models.DateTimeField(null=True, blank=True)
     time_out = models.DateTimeField(null=True, blank=True)
     image_in = models.CharField(max_length=255,null=True, blank=True)
-    vehicle = models.ForeignKey(Vehicle, models.CASCADE,
+    vehicle = models.CharField(max_length=255,
                                    blank=False,
-                                   null=False,
-                                   to_field='license_plate')
+                                   null=False)
 
     def __str__(self) -> str:
         return f"{self.vehicle_id} - {self.time_in} - {self.time_out}"
