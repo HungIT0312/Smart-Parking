@@ -8,10 +8,10 @@ export default function AuthClient(props) {
   const [token, setToken] = useState(sessionStorage.getItem("tokenAdmin"));
   const navigate = useNavigate();
   useEffect(() => {
-    // if (!token) {
-    //   navigate("/Client/Login/");
-    //   toast.warning("Please login first!", { autoClose: 1000 });
-    // }
+    if (!token) {
+      navigate("/Client/Login/");
+      toast.warning("Please login first!", { autoClose: 1000 });
+    }
   }, []);
   return (
     <Container fluid style={{ padding: 0, background: Color.backgroundColor }}>

@@ -15,9 +15,38 @@ import { useOutletContext } from "react-router-dom";
 import image from "../../assets/imagePlaceHolder.png";
 import Color from "../../constants/colors.js";
 import { BsCamera } from "react-icons/bs";
+import { GiBarrier } from "react-icons/gi";
 import { useState } from "react";
+import { useEffect } from "react";
+import { getOpenReq } from "../../api/Manager/Account.api";
+import { toast } from "react-toastify";
 const License = () => {
   const data = useOutletContext();
+  const noti = data.Clients?.notification;
+  const resultPlate = data.Clients?.result_detection;
+  const [isRegistered, setIsRegistered] = useState(true);
+  useEffect(() => {
+    if (noti) {
+      setIsRegistered(false);
+    }
+  }, [noti]);
+  const handleOpenBarrier = (e) => {
+    e.preventDefault();
+    const reqParams = {
+      image: data.Clients.image,
+      license_plate: data.Clients.result_detection,
+    };
+    const _openBarrier = async (params) => {
+      const res = await getOpenReq(params);
+      setIsRegistered(true);
+      toast.success(res, { autoClose: 2000 });
+    };
+    if (data.Clients.result_detection === "") {
+      return;
+    } else {
+      _openBarrier(reqParams);
+    }
+  };
   return (
     <Container className="" style={{ color: Color.paragraph }}>
       <Row className="flex-column flex-sm-row ">
@@ -39,6 +68,7 @@ const License = () => {
               Vehicle information
             </Card.Header>
             <Card.Body className="p-3 d-flex flex-column align-items-center justify-content-center ">
+              <p>License plate: {data.Clients?.result_detection || "None"}</p>
               <Image src={data?.Clients?.image || image} thumbnail fluid />
               <Button
                 style={{
@@ -79,7 +109,7 @@ const License = () => {
                         type="text"
                         placeholder="Enter first name"
                         required
-                        value={data?.Clients?.first_name}
+                        value={data?.Clients?.first_name || ""}
                       />
                     </Col>
                     <Col>
@@ -89,7 +119,7 @@ const License = () => {
                         type="text"
                         placeholder="Enter last name"
                         required
-                        value={data?.Clients?.last_name}
+                        value={data?.Clients?.last_name || ""}
                       />
                     </Col>
                   </Row>
@@ -100,7 +130,7 @@ const License = () => {
                     readOnly
                     type="text"
                     placeholder="Email"
-                    value={data?.Clients?.email}
+                    value={data?.Clients?.email || ""}
                     required
                   />
                 </Form.Group>
@@ -112,7 +142,7 @@ const License = () => {
                     type="text"
                     placeholder="Enter license plate"
                     required
-                    value={data?.Clients?.license_plate}
+                    value={data?.Clients?.license_plate || ""}
                   />
                 </Form.Group>
 
@@ -122,13 +152,19 @@ const License = () => {
                     readOnly
                     type="text"
                     placeholder="address"
-                    value={data?.Clients?.date_joined}
+                    value={data?.Clients?.date_joined || ""}
                   />
                 </FormGroup>
 
                 <div className="d-flex justify-content-center mt-3">
-                  <Button variant="primary" className="align-items-center">
-                    Confirm
+                  <Button
+                    variant="primary"
+                    className="align-items-center"
+                    disabled={isRegistered ? true : false}
+                    onClick={handleOpenBarrier}
+                  >
+                    <GiBarrier size={20} className="me-2" />
+                    Open
                   </Button>
                 </div>
               </Form>

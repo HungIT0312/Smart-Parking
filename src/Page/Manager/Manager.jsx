@@ -19,7 +19,7 @@ const Manager = () => {
     Lots: Lots,
   };
   useEffect(() => {
-    const newSocket = new WebSocket(`ws://${URL_SERVER}/ws/test_channel/`);
+    const newSocket = new WebSocket(`ws://${URL_SERVER}/ws/checkin_channel/`);
     const parkingSocket = new WebSocket(`ws://${URL_SERVER}/ws/slot_channel/`);
     setSocketParking(parkingSocket);
     setSocketClient(newSocket);
@@ -63,6 +63,7 @@ const Manager = () => {
       socketClient.onerror = null;
     };
   }, [socketClient, socketParking]);
+
   return (
     <Auth
       style={{

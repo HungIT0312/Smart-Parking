@@ -15,6 +15,9 @@ export const updateAccount = (data) => {
 export const deleteAccount = (ids) => {
   return http.delete("/manager/account/", ids);
 };
-export const getTimeLog = () =>{
-  return http.get("/manager/logs/")
-}
+export const getTimeLog = () => {
+  return http.get("/manager/logs/");
+};
+export const getOpenReq = (params) => {
+  return http.post("/manager/logs/", params);
+};

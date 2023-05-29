@@ -1,10 +1,7 @@
-import React, { useRef } from "react";
-import { useEffect } from "react";
-import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
+import React, { useContext, useEffect, useState } from "react";
+import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import { getAccountById } from "../../api/Client/Profile";
-import { useState } from "react";
 import { getTimeLog, updateAccount } from "../../api/Manager/Account.api";
-import { useContext } from "react";
 import { IdClientContext } from "../../store/client-context/ClientContext";
 
 const Vehicle = (props) => {
@@ -14,6 +11,8 @@ const Vehicle = (props) => {
   const IDCtx = useContext(IdClientContext);
   const [isUpdate, setIsUpdate] = useState(false);
   const [parkingFee, setParkingFee] = useState(0);
+  const [moneyAdded, setMoneyAdded] = useState(0);
+  const [messAlert, setMessAlert] = useState("Vui lòng nhập số tiền cần nạp");
   useEffect(() => {
     const id = sessionStorage.getItem("idClient");
     const _getProfile = async () => {
@@ -28,35 +27,47 @@ const Vehicle = (props) => {
     };
     _getTimeLog();
     // TÍnh phí đỗ xe
-
-    calculateParkingFee();
-    const interval = setInterval(() => {
+    if (logVehicle.time_in) {
       calculateParkingFee();
-    }, 30000);
-
-    return () => {
-      clearInterval(interval);
-    };
+      const interval = setInterval(() => {
+        calculateParkingFee();
+      }, 30000);
+    }
   }, []);
+
   const calculateParkingFee = () => {
-    // const currentTime = new Date(); // Thời gian hiện tại
-    // // const timeDifference = currentTime.getTime() - time.getTime();
-    // const timeDifference = currentTime.getTime() - timeLogs?.time_in.getTime();
-    // // const fee = Math.floor(timeDifference) * 1000;
-    // const fee = Math.floor(timeDifference / (5 * 60 * 1000)) * 1000;
-    // setParkingFee(fee);
+    const currentTime = new Date(); // Thời gian hiện tại
+    const timeIn = new Date(timeLogs.time_in);
+    const timeDifference = currentTime.getTime() - timeIn.getTime();
+    const fee = Math.floor(timeDifference / (5 * 60 * 1000)) * 1000;
+    setParkingFee(fee);
   };
   const handleEditClick = (e) => {
     e.preventDefault();
     setIsUpdate((prevState) => !prevState);
-    if (isUpdate) {
+    if (isUpdate && !messAlert) {
       try {
-        // const _updateClient = async () => {
-        //   const res = await updateAccount(client);
-        //   setClient(res);
-        // };
-        // _updateClient();
+        const _updateClient = async () => {
+          const res = await updateAccount({
+            ...client,
+            parking_fee: moneyAdded,
+          });
+          setClient(res);
+        };
+        _updateClient();
       } catch (error) {}
+    }
+  };
+
+  const handleAddMoney = (e) => {
+    const prevMoney = parseInt(client?.parking_fee);
+    const money = parseInt(e.target.value);
+    if (money >= 5000 && money % 1000 === 0) {
+      setMoneyAdded("" + (prevMoney + money));
+      setMessAlert(null);
+    } else {
+      setMessAlert("Vui lòng nhập đúng số tiền cần nạp!");
+      return;
     }
   };
   const logVehicle = timeLogs.filter((log) => {
@@ -68,7 +79,6 @@ const Vehicle = (props) => {
       style={{
         backgroundColor: "#fffff",
         borderRadius: 8,
-        zIndex: 1000,
       }}
     >
       <Card.Title
@@ -88,7 +98,7 @@ const Vehicle = (props) => {
               Time In:
             </Form.Label>
             <Col xs={8}>
-              <Form.Text> {logVehicle?.time_in}</Form.Text>
+              <Form.Text> {logVehicle?.time_in || "none"}</Form.Text>
             </Col>
           </Form.Group>
 
@@ -143,23 +153,42 @@ const Vehicle = (props) => {
               <Col xs={8}>
                 <Form.Control
                   type="number"
-                  min={10000}
+                  min={0}
                   step={5000}
-                  defaultValue={5000}
+                  defaultValue={0}
                   placeholder="Your Money in Account"
-                  onChange={(e) =>
-                    setClient({
-                      ...client,
-                      parking_fee: (client.parking_fee += e.target.value),
-                    })
-                  }
+                  onChange={handleAddMoney}
                 />
+                <Form.Text style={{ color: "#ff3838", marginLeft: 12 }}>
+                  {messAlert}
+                </Form.Text>
               </Col>
             </Form.Group>
           )}
           <Form.Group as={Row} className="mb-3">
-            <Col sm={{ span: 10, offset: 2 }}>
-              <Button onClick={handleEditClick}>Recharge</Button>
+            <Col sm={{ span: 5, offset: 5 }}>
+              {isUpdate ? (
+                <>
+                  <Button
+                    variant="success"
+                    onClick={handleEditClick}
+                    disabled={messAlert ? true : false}
+                    className="me-2"
+                  >
+                    Confirm
+                  </Button>
+                  <Button
+                    variant="light"
+                    onClick={() => setIsUpdate((prevState) => !prevState)}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={() => setIsUpdate((prevState) => !prevState)}>
+                  Recharge
+                </Button>
+              )}
             </Col>
           </Form.Group>
         </Form>
