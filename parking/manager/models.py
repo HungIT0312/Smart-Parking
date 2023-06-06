@@ -35,7 +35,7 @@ class Log(models.Model):
     vehicle = models.CharField(max_length=255,
                                    blank=False,
                                    null=False)
-
+    is_member = models.BooleanField(default=False, verbose_name='Member')
     def __str__(self) -> str:
         return f"{self.vehicle_id} - {self.time_in} - {self.time_out}"
     

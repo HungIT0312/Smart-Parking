@@ -12,14 +12,12 @@ urlpatterns = [
     path("account/", views.AccountApiView.as_view()),
     path("logs/", views.LogApiView.as_view()),
     path("hello-world/", views.HelloWorld.as_view()),
-    path("identify/", views.IdentifyApiView.as_view()), #nhận diện
     path("login/", CustomObtainAuthToken.as_view(), name='token_obtain_pair'),
     path("logout/", views.LogoutView.as_view()),
     path("update-slot/", views.SlotUpdate.as_view()),
-    path("check/", views.CheckAgain.as_view()), # chụp lại
+    path("deposit/", views.AccountDeposit.as_view()),
 
-    
-    
-    path("checkin/", views.Checkin.as_view()),# check in
+    path("check-in/", views.Checkin.as_view()),# check in
+    path("check-out/", views.Checkout.as_view()),# check out
     path("check-again/", views.CheckAgain.as_view()), # chụp lại và xoá log cũ
 ]

@@ -7,7 +7,7 @@ import json
 class MyConsumer(WebsocketConsumer):
     def connect(self):
         
-        self.room_group_name = 'test_channel'
+        self.room_group_name = 'checkin_channel'
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
@@ -34,11 +34,11 @@ class MyConsumer(WebsocketConsumer):
             }
         )
 
-    def connection_established(self, event):
+    def checkin(self, event):
         message = event['message']
 
         self.send(text_data=json.dumps({
-            'type':'connection_established',
+            'type':'checkin',
             'message': message
         }))
         
@@ -117,4 +117,40 @@ class CheckConsumer(WebsocketConsumer):
             'message': message
         }))
     
+class CheckoutConsumer(WebsocketConsumer):
+    def connect(self):
+        
+        self.room_group_name = 'checkout_channel'
 
+        async_to_sync(self.channel_layer.group_add)(
+            self.room_group_name,
+            self.channel_name
+        )
+        self.accept()
+    
+    def disconnect(self, close_code):
+        async_to_sync(self.channel_layer.group_discard)(
+            self.room_group_name,
+            self.channel_name
+        )
+        
+        
+    def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name,
+            {
+                'type':'chat_message',
+                'message':message
+            }
+        )
+
+    def checkout(self, event):
+        message = event['message']
+
+        self.send(text_data=json.dumps({
+            'type':'checkout',
+            'message': message
+        }))

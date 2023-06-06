@@ -35,7 +35,7 @@ import cloudinary.api
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .consumers import MyConsumer
+from .consumers import *
 
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -136,12 +136,14 @@ class LogApiView(APIView):
             id = Log.objects.filter(vehicle=vehicle)
         serializer = LogSerializer(id, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+     
+    #  chụp lại checkin
     def post(self, request):
         license_plate = request.data.get('license_plate')
         image = request.data.get('image')
         my_data = {'vehicle': license_plate,
-                    'image_in': image}
+                    'image_in': image,
+                    'is_member': False}
         logSerializer = LogSerializer(data=my_data)
         if logSerializer.is_valid():
             logSerializer.save()
@@ -149,32 +151,17 @@ class LogApiView(APIView):
             return Response("Add successfully", status=status.HTTP_200_OK)
         else:
             return Response(logSerializer.errors, status=status.HTTP_400_BAD_REQUEST)  
-    
+   
     def put(self, request):
-        # xử lí checkout ....
-        print("CHECKOUT")
-        serializer = ImageSerializer(data=request.data)
-        resultDetection = ""
-        if serializer.is_valid():
-            image = request.data.get('image')
-            result = identify(image)
-            resultDetection = result['resultDetection']
-            uploaded_image = result['uploaded_image']
-            print(resultDetection)
-        my_data = {'vehicle': resultDetection}
-        vehicle = my_data['vehicle']
-        log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
+        license_plate = request.data.get('license_plate')
+        my_data = {'vehicle': license_plate}
+        log = Log.objects.filter(vehicle=license_plate, time_out__isnull=True).first()
         if log is not None:
             serializer = LogSerializer(log, data=my_data, partial=True)
             if serializer.is_valid():
-                new_filename =checkout_path + "check out-" + resultDetection + " " +  str(timezone.now()) +  ".jpg"
-                uploaded_image = rename(uploaded_image['public_id'], new_filename)
                 serializer.save()
-                return Response(1 ,status=status.HTTP_201_CREATED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-        else:
-            return Response(0,status=status.HTTP_404_NOT_FOUND)
+                return Response(0,status=status.HTTP_200_OK)
+        return Response(0,status=status.HTTP_404_NOT_FOUND)
         
     def delete(self,request):
         ids = json.loads(request.body)["ids"]    
@@ -199,7 +186,13 @@ class Checkin(APIView):
             
             print(resultDetection)
             if resultDetection == "None":
-                return Response("N",status=201)
+                message = {
+                        "notification": "Image is not valid",
+                        "image": uploaded_image['secure_url']
+                    }
+                send_socket_message(channel_name="checkin_channel", type="checkin", message=message)
+                responseMes = "E"
+                return Response(responseMes,status=201)
            
             vehicle = Vehicle.objects.filter(license_plate = resultDetection).first()
 
@@ -209,7 +202,8 @@ class Checkin(APIView):
                 user = Account.objects.filter(email=vehicle.user).first()
                 uploaded_image = renameImage(checkin_path, "check in-", vehicle_id, uploaded_image)
                 my_data = {'vehicle': vehicle_id,
-                        'image_in': uploaded_image['secure_url']}
+                        'image_in': uploaded_image['secure_url'],
+                        'is_member': True}
                 logSerializer = LogSerializer(data=my_data)
                 serializer.save(name = vehicle_id,image = uploaded_image['secure_url'])
                 # Kiểm tra có tồn tại xe tại bãi chưa
@@ -218,7 +212,7 @@ class Checkin(APIView):
                         "notification": "This vehicle is existed",
                         "image": uploaded_image['secure_url']
                     }
-                    send_socket_message(channel_name="test_channel", type="connection_established", message=message)
+                    send_socket_message(channel_name="checkin_channel", type="checkin", message=message)
 
                     return Response(0, status=400)  
                 else:
@@ -233,7 +227,7 @@ class Checkin(APIView):
                         "date_joined": user.date_joined.isoformat(),
                         "image": uploaded_image['secure_url']
                     }
-                    send_socket_message(channel_name="test_channel", type="connection_established", message=message)
+                    send_socket_message(channel_name="checkin_channel", type="checkin", message=message)
                     return Response("1 " + vehicle_id,status=201)
             else:
                 license_response = resultDetection
@@ -243,98 +237,134 @@ class Checkin(APIView):
                 
                 message = {
                     "notification": "This vehicle is not registered",
-                    "result_detection": resultDetection,
+                    "result_detection": license_response,
                     "image": uploaded_image['secure_url']
                 }
-                send_socket_message(channel_name="test_channel", type="connection_established", message=message)
+                send_socket_message(channel_name="checkin_channel", type="checkin", message=message)
                 return Response("0 " + license_response, status=400)                 
         else:
             return Response(0, status=400)
     
-
-class AddAgain(APIView):
+class Checkout(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self, request):
-        isCheckAgain = request.data.get("check")
-        if isCheckAgain:
-            old_vehicle = request.data.get("old")
-            new_vehicle = request.data.get("new")
-            try:
-                old_log = Log.objects.filter(vehicle=old_vehicle, time_out__isnull=True).first()
-                img_path = old_log.image_in
-            except Log.DoesNotExist:
-                return Response("Log does not exist", status=status.HTTP_404_NOT_FOUND)
-
-            # Xóa đối tượng cũ trong một transaction riêng biệt
-            with transaction.atomic():
-                old_log.delete()
-                print("delete success")
-
-            # Tạo đối tượng mới trong một transaction riêng biệt
-            with transaction.atomic():
-                new_data = {
-                    'vehicle': new_vehicle,
-                    'image_in': img_path
-                }
-                logSerializer = LogSerializer(data=new_data)
-                if logSerializer.is_valid():
-                    logSerializer.save()
-                    return Response("Success", status=status.HTTP_201_CREATED)
-                else:
-                    print(logSerializer.errors)
-                    return Response("Not valid", status=status.HTTP_201_CREATED)
-        return Response("Fail", status=status.HTTP_404_NOT_FOUND)
-    
-class IdentifyApiView(APIView):
-    permission_classes = (permissions.AllowAny,)
-    def post(self, request):
-        print("HAVE REQUEST")
+        print("CHECKOUT")
         serializer = ImageSerializer(data=request.data)
+        resultDetection = ""
         if serializer.is_valid():
             image = request.data.get('image')
-            
-            # upload ảnh lên cloud
-            uploaded_image = upload(image, folder=checkin_path)
-            
-            # lấy link ảnh
-            cloudinary_url = uploaded_image['secure_url']
-            arr = np.asarray(bytearray(urllib.request.urlopen(cloudinary_url).read()), dtype=np.uint8)
-            image = cv2.imdecode(arr, -1) 
-            
-            # lưu ảnh vào thư mục
-            folder_url = 'static/image/'
-            name_image = "image-temp.jpg"
-            duong_dan_luu = folder_url + name_image
-            cv2.imwrite(duong_dan_luu, image)
-        
-            resultDetection = ""
-            if image is not None:
-                try:
-                    resultDetection = model_AI.mode_AI(image)
-                except:
-                    return Response(2,status=201)
-            else:
-                print('Failed to load image from Cloudinary')
+            result = identify(image)
+            resultDetection = result['resultDetection']
+            uploaded_image = result['uploaded_image']
             print(resultDetection)
-            if resultDetection == "None":
-                return Response("N",status=201)
-            vehicle = Vehicle.objects.filter(license_plate=resultDetection).first()
-            print(vehicle)
-            if vehicle is None:
-                return Response("0 " + resultDetection,status=status.HTTP_404_NOT_FOUND)
-            return Response("1 " + resultDetection ,status=status.HTTP_400_BAD_REQUEST)
+            
+        if resultDetection == "None":
+            message = {
+                        "notification": "Image is not valid",
+                        "image": uploaded_image['secure_url']
+                    }
+            send_socket_message(channel_name="checkout_channel", type="checkout", message=message)
+            return Response("E",status=201)
         
+        
+        my_data = {'vehicle': resultDetection}
+        vehicle = my_data['vehicle']
+        log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
+        if log is not None:
+            serializer = LogSerializer(log, data=my_data, partial=True)
+            vehicle = Vehicle.objects.filter(license_plate=log.vehicle).first()
+            if serializer.is_valid():
+                if log.is_member is True:
+                    uploaded_image = renameImage(checkout_path, "check out-", resultDetection, uploaded_image)
+                    #xử lí tính tiền
+                    timeParking = timezone.now() - log.time_in
+                    user = Account.objects.get(email=vehicle.user)
+                    if timeParking < timedelta(days=1):
+                        days_parked = round(timeParking.total_seconds() / (24 * 60 * 60))
+                        if(days_parked == 0):
+                            days_parked = 1
+                        fee = days_parked * 10000
+                        if user.parking_fee < fee:
+                            feeMessage = {
+                                "notification": "Insufficient Funds in Your Account",
+                                "first_name": user.first_name,
+                                "last_name": user.last_name,
+                                "email": user.email,
+                                "license_plate": resultDetection,
+                                "result_detection": resultDetection,
+                                "date_joined": user.date_joined.isoformat(),
+                                "image": uploaded_image['secure_url'],
+                                "parking_fee": user.parking_fee,
+                                "is_member": log.is_member,
+                                "fee": fee,
+                                "time_in": log.time_in.isoformat()
+                            }
+                            send_socket_message(channel_name="checkout_channel", type="checkout", message=feeMessage)
+                        else:
+                            feeData = {
+                                "parking_fee": user.parking_fee - fee,
+                            }
+                            serializer = AccountSerializer(user,data=feeData) 
+                            checkoutMessage = {
+                                "notification": "Paid successfully",
+                                "first_name": user.first_name,
+                                "last_name": user.last_name,
+                                "email": user.email,
+                                "license_plate": resultDetection,
+                                "result_detection": resultDetection,
+                                "date_joined": user.date_joined.isoformat(),
+                                "image": uploaded_image['secure_url'],
+                                "parking_fee": user.parking_fee,
+                                "fee": fee,
+                                "is_member": log.is_member,
+                                "time_in": log.time_in.isoformat()
+                            }
+                            send_socket_message(channel_name="checkout_channel", type="checkout", message=checkoutMessage)
+                else:
+                    timeParking = timezone.now() - log.time_in
+                    if timeParking < timedelta(days=1):
+                        days_parked = round(timeParking.total_seconds() / (24 * 60 * 60))
+                        if(days_parked == 0):
+                            days_parked = 1
+                        notMemberFee = days_parked * 15000                       
+                    checkoutMessage = {
+                                "notification": "Vehicle is not registered, please pay in cash",
+                                "license_plate": resultDetection,
+                                "result_detection": resultDetection,
+                                "image": uploaded_image['secure_url'],
+                                "fee": notMemberFee,
+                                "is_member": log.is_member,
+                                "time_in": log.time_in.isoformat()
+                            }
+                    send_socket_message(channel_name="checkout_channel", type="checkout", message=checkoutMessage)
+                serializer.save()
+                return Response("1 " + resultDetection ,status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        else:
+            return Response("0 " + resultDetection,status=status.HTTP_404_NOT_FOUND)
+
+class AccountDeposit(APIView):
+    def post(self, request):
+        cash = request.data.get('parking_fee')
+        print(cash)
+        user = request.user
+        user.parking_fee = cash
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+
 class CheckAgain(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self, request):
-        license_plate = request.data.get('license_plate')
+        license_plate = request.data
         log = Log.objects.filter(vehicle=license_plate, time_out__isnull=True).first()
         if log is not None:
             log.delete()
             send_socket_message(channel_name="check_channel", type="check_again", message=0)   
             return Response(status=status.HTTP_200_OK)
         else:
-            return Response("Log does not exist", status=status.HTTP_404_NOT_FOUND)
+            send_socket_message(channel_name="check_channel", type="check_again", message=0) 
+            return Response("Log does not exist", status=status.HTTP_200_OK)
 
 class SlotUpdate(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -351,8 +381,6 @@ class CustomObtainAuthToken(ObtainAuthToken):
     serializer_class = AccountSerializer
     def post(self, request, *args, **kwargs):
         # Lấy dữ liệu POST request
-        # headers = request.META  # Lấy tất cả các header
-        # print(headers)
         email = request.data.get('email')
         password = request.data.get('password')
         print(request.data)
