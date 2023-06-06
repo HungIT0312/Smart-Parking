@@ -6,22 +6,22 @@ const routeConf = [
   {
     name: "License",
     to: "/Manager/License",
-    icon: <TbLicense color="#636f7f" size={30} />,
+    icon: <TbLicense color="#000" size={30} />,
   },
   {
     name: "Parking",
     to: "/Manager/Parking",
-    icon: <MdOutlineLocalParking color="#636f7f" size={30} />,
+    icon: <MdOutlineLocalParking color="#000" size={30} />,
   },
   {
     name: "Clients",
     to: "/Manager/Clients",
-    icon: <RiGroupLine color="#636f7f" size={30} />,
+    icon: <RiGroupLine color="#000" size={30} />,
   },
   {
     name: "TimeLog",
     to: "/Manager/TimeLog",
-    icon: <AiOutlineFieldTime color="#636f7f" size={30} />,
+    icon: <AiOutlineFieldTime color="#000" size={30} />,
   },
 ];
 const clientRoute = [

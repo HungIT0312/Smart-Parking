@@ -21,3 +21,6 @@ export const getTimeLog = () => {
 export const getOpenReq = (params) => {
   return http.post("/manager/logs/", params);
 };
+export const getCheckAgain = (params) => {
+  return http.post("/manager/check-again/", params);
+};

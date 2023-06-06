@@ -14,58 +14,42 @@ export default function TimeLog() {
     };
     _getTimeLog();
   }, []);
-  const handleInfor = (clientId) => {
-    console.log(clientId);
-  };
+
   return (
     <Container>
-      <Col className="h-100 ">
-        <Card className="h-100 mt-5 cardShadow mx-4">
-          <Card.Header className="text-center"> </Card.Header>
-          <Card.Body>
-            <Table striped responsive>
-              <thead>
-                <tr className="text-center">
-                  <th>#</th>
-                  <th>ID</th>
-                  <th>License</th>
-                  <th>Time In</th>
-                  <th>Time Out</th>
-                  {/* <th>Options</th> */}
-                </tr>
-              </thead>
-              <tbody>
-                {timeLogs &&
-                  timeLogs.map((timeLog, index) => {
-                    return (
-                      <tr className="text-center" key={timeLog.id}>
-                        <td className="fw-bold">{++index}</td>
-                        <td>{timeLog.id}</td>
-                        <td>{timeLog.vehicle}</td>
-                        <td>{timeLog.time_in}</td>
-                        <td>{timeLog.time_out}</td>
-                        {/* <td>
-                            <Button
-                              value={timeLog.id}
-                              className="ms-1"
-                              onClick={(e) => {
-                                handleInfor(timeLog.id);
-                              }}
-                            >
-                              <FaInfo></FaInfo>
-                            </Button>
-                          </td> */}
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </Table>
-          </Card.Body>
-        </Card>
-        {/* <Button className="btnCss" xs={3} md={3}>
-          <FaPlus />
-        </Button> */}
-      </Col>
+      <Card
+        className="mt-5 cardShadow mx-4 overflow-scroll"
+        style={{ maxHeight: "90vh" }}
+      >
+        <Card.Header className="text-center"> </Card.Header>
+        <Card.Body>
+          <Table striped responsive>
+            <thead>
+              <tr className="text-center">
+                <th>#</th>
+                <th>ID</th>
+                <th>License</th>
+                <th>Time In</th>
+                <th>Time Out</th>
+              </tr>
+            </thead>
+            <tbody>
+              {timeLogs &&
+                timeLogs.map((timeLog, index) => {
+                  return (
+                    <tr className="text-center" key={timeLog.id}>
+                      <td className="fw-bold">{++index}</td>
+                      <td>{timeLog.id}</td>
+                      <td>{timeLog.vehicle}</td>
+                      <td>{timeLog.time_in}</td>
+                      <td>{timeLog.time_out}</td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
     </Container>
   );
 }

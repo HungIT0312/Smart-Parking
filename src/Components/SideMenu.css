@@ -1,25 +1,25 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
 .nav__item {
-    color: #636f7f !important;
+    color: #000 !important;
 }
 
 .nav__item:not(.active_link):hover * {
-    color: #8f9ba9 !important;
+    color: #616161c8 !important;
 }
 
 .item__name {
-    color: #636f7f !important;
+    color: #000 !important;
 }
 
 .active_link * {
-    color: white !important;
+    color: #68a8ff !important;
 }
 
 
 
 .nav__header {
-    color: #636f7f;
+    color: #000;
     margin-left: 8px;
     font-weight: 700;
     font-size: 14px;

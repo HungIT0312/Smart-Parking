@@ -21,7 +21,7 @@ function App() {
         <Route path="/Manager/Login" element={<LoginPage role={1} />} />
         <Route path="/Manager" element={<Manager />}>
           <Route path="*" element={<Error />}></Route>
-          <Route path="License" element={<License />} />
+          <Route path="License" index element={<License />} />
           <Route path="Clients" element={<Clients />}>
             <Route path="new" element={<Add />} />
           </Route>

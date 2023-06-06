@@ -65,7 +65,10 @@ export default function SideMenu(props) {
       );
     });
   return (
-    <Nav className="flex-column bg-dark h-100 ">
+    <Nav
+      className="flex-column"
+      style={{ backgroundColor: "#fff!important", height: "100vh" }}
+    >
       <Navbar.Brand
         href="/Manager/Home"
         className="d-flex justify-content-center mt-2"
@@ -79,7 +82,7 @@ export default function SideMenu(props) {
       </Nav>
       <Nav className="mt-auto  border-top d-flex align-items-center justify-content-center">
         <Nav.Link
-          style={{ color: Color.navParagraph }}
+          style={{ color: "#000" }}
           onClick={props.role === 0 ? handleLogoutClient : handleLogoutAdmin}
         >
           <FiLogOut size={24} className="me-3"></FiLogOut>

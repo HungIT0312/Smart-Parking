@@ -20,16 +20,25 @@ const ParkingLots = () => {
           >
             <Card.Body>
               <Row xs={12} md={12} lg={12} className="h-100">
-                {data.Lots &&
-                  data?.Lots.map((lot, index) => {
-                    return (
-                      <Lot
-                        key={index}
-                        name={`Lot #${index + 1}`}
-                        status={lot}
-                      ></Lot>
-                    );
-                  })}
+                {data.Lots
+                  ? data?.Lots.map((lot, index) => {
+                      return (
+                        <Lot
+                          key={index}
+                          name={`Lot #${index + 1}`}
+                          status={lot}
+                        ></Lot>
+                      );
+                    })
+                  : [1, 1, 1, 1].map((lot, index) => {
+                      return (
+                        <Lot
+                          key={index}
+                          name={`Lot #${index + 1}`}
+                          status={lot}
+                        ></Lot>
+                      );
+                    })}
               </Row>
             </Card.Body>
           </Card>
