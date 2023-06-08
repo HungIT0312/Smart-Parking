@@ -15,7 +15,6 @@ urlpatterns = [
     path("login/", CustomObtainAuthToken.as_view(), name='token_obtain_pair'),
     path("logout/", views.LogoutView.as_view()),
     path("update-slot/", views.SlotUpdate.as_view()),
-    path("deposit/", views.AccountDeposit.as_view()),
 
     path("check-in/", views.Checkin.as_view()),# check in
     path("check-out/", views.Checkout.as_view()),# check out

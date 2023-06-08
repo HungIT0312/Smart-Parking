@@ -44,8 +44,6 @@ from rest_framework.permissions import IsAuthenticated
 checkin_path = "image/cars-checkin/"
 checkout_path = "image/cars-checkout/"
 class HelloWorld(APIView):
-    # authentication_classes = [BasicAuthentication]
-    # permission_classes = [IsAuthenticated]
     permission_classes = (permissions.AllowAny,)
     def get(self, request): 
         content = {'message': 'Hello, World!'}
@@ -95,7 +93,6 @@ class AccountApiView(APIView):
         id = json.loads(request.body)["id"]
         try:
             account = Account.objects.filter(id=id).first()
-
         except Account.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = AccountSerializer(account, data=request.data)
@@ -124,8 +121,7 @@ class AccountApiView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     
-# API for Log
-    
+# API for Log  
 class LogApiView(APIView):
     permission_classes = (permissions.AllowAny,)
     def get(self, request):
@@ -176,7 +172,7 @@ class LogApiView(APIView):
 class Checkin(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self, request):
-        print("HAVE REQUEST")
+        print("CHECKIN")
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
             image = request.data.get('image')
@@ -249,9 +245,10 @@ class Checkout(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self, request):
         print("CHECKOUT")
-        serializer = ImageSerializer(data=request.data)
+        parkingFee = 0
+        imageSerializer = ImageSerializer(data=request.data)
         resultDetection = ""
-        if serializer.is_valid():
+        if imageSerializer.is_valid():
             image = request.data.get('image')
             result = identify(image)
             resultDetection = result['resultDetection']
@@ -271,62 +268,59 @@ class Checkout(APIView):
         vehicle = my_data['vehicle']
         log = Log.objects.filter(vehicle=vehicle, time_out__isnull=True).first()
         if log is not None:
-            serializer = LogSerializer(log, data=my_data, partial=True)
+            logSerializer = LogSerializer(log, data=my_data, partial=True)
             vehicle = Vehicle.objects.filter(license_plate=log.vehicle).first()
-            if serializer.is_valid():
+            if logSerializer.is_valid():
                 if log.is_member is True:
                     uploaded_image = renameImage(checkout_path, "check out-", resultDetection, uploaded_image)
                     #xử lí tính tiền
                     timeParking = timezone.now() - log.time_in
                     user = Account.objects.get(email=vehicle.user)
-                    if timeParking < timedelta(days=1):
-                        days_parked = round(timeParking.total_seconds() / (24 * 60 * 60))
-                        if(days_parked == 0):
-                            days_parked = 1
-                        fee = days_parked * 10000
-                        if user.parking_fee < fee:
-                            feeMessage = {
-                                "notification": "Insufficient Funds in Your Account",
-                                "first_name": user.first_name,
-                                "last_name": user.last_name,
-                                "email": user.email,
-                                "license_plate": resultDetection,
-                                "result_detection": resultDetection,
-                                "date_joined": user.date_joined.isoformat(),
-                                "image": uploaded_image['secure_url'],
-                                "parking_fee": user.parking_fee,
-                                "is_member": log.is_member,
-                                "fee": fee,
-                                "time_in": log.time_in.isoformat()
-                            }
-                            send_socket_message(channel_name="checkout_channel", type="checkout", message=feeMessage)
-                        else:
-                            feeData = {
-                                "parking_fee": user.parking_fee - fee,
-                            }
-                            serializer = AccountSerializer(user,data=feeData) 
-                            checkoutMessage = {
-                                "notification": "Paid successfully",
-                                "first_name": user.first_name,
-                                "last_name": user.last_name,
-                                "email": user.email,
-                                "license_plate": resultDetection,
-                                "result_detection": resultDetection,
-                                "date_joined": user.date_joined.isoformat(),
-                                "image": uploaded_image['secure_url'],
-                                "parking_fee": user.parking_fee,
-                                "fee": fee,
-                                "is_member": log.is_member,
-                                "time_in": log.time_in.isoformat()
-                            }
-                            send_socket_message(channel_name="checkout_channel", type="checkout", message=checkoutMessage)
+                    days_parked = (round(timeParking.total_seconds() / (24 * 60 * 60))) + 1
+                    parkingFee = days_parked * 10000
+                    if user.balance < parkingFee:
+                        feeMessage = {
+                            "notification": "Insufficient Funds in Your Account",
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                            "email": user.email,
+                            "license_plate": resultDetection,
+                            "result_detection": resultDetection,
+                            "date_joined": user.date_joined.isoformat(),
+                            "image": uploaded_image['secure_url'],
+                            "balance": user.balance,
+                            "is_member": log.is_member,
+                            "fee": parkingFee,
+                            "time_in": log.time_in.isoformat()
+                        }
+                        send_socket_message(channel_name="checkout_channel", type="checkout", message=feeMessage)
+                    else:
+                        feeData = user.balance - parkingFee
+                        user.balance = feeData
+                        user.save()
+                        checkoutMessage = {
+                            "notification": "Paid successfully",
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                            "email": user.email,
+                            "license_plate": resultDetection,
+                            "result_detection": resultDetection,
+                            "date_joined": user.date_joined.isoformat(),
+                            "image": uploaded_image['secure_url'],
+                            "balance": user.balance,
+                            "fee": parkingFee,
+                            "is_member": log.is_member,
+                            "time_in": log.time_in.isoformat()
+                        }
+                        send_socket_message(channel_name="checkout_channel", type="checkout", message=checkoutMessage)
                 else:
                     timeParking = timezone.now() - log.time_in
                     if timeParking < timedelta(days=1):
                         days_parked = round(timeParking.total_seconds() / (24 * 60 * 60))
                         if(days_parked == 0):
                             days_parked = 1
-                        notMemberFee = days_parked * 15000                       
+                        notMemberFee = days_parked * 15000
+                        parkingFee = notMemberFee                    
                     checkoutMessage = {
                                 "notification": "Vehicle is not registered, please pay in cash",
                                 "license_plate": resultDetection,
@@ -337,21 +331,15 @@ class Checkout(APIView):
                                 "time_in": log.time_in.isoformat()
                             }
                     send_socket_message(channel_name="checkout_channel", type="checkout", message=checkoutMessage)
-                serializer.save()
+                    
+                print(parkingFee)
+                log.parking_fee = parkingFee
+                logSerializer.save()
                 return Response("1 " + resultDetection ,status=status.HTTP_200_OK)
             else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+                return Response(logSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         else:
             return Response("0 " + resultDetection,status=status.HTTP_404_NOT_FOUND)
-
-class AccountDeposit(APIView):
-    def post(self, request):
-        cash = request.data.get('parking_fee')
-        print(cash)
-        user = request.user
-        user.parking_fee = cash
-        user.save()
-        return Response(status=status.HTTP_200_OK)
 
 class CheckAgain(APIView):
     permission_classes = (permissions.AllowAny,)

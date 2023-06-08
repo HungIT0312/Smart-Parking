@@ -13,11 +13,10 @@ from django.utils.translation import gettext_lazy as _
 class Account(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True, default="")
-    parking_fee = models.FloatField(default=0) 
+    balance = models.FloatField(default=0) 
     objects = UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-    
 
 class Vehicle(models.Model):
     license_plate = models.CharField(max_length=10, primary_key=True)
@@ -36,6 +35,7 @@ class Log(models.Model):
                                    blank=False,
                                    null=False)
     is_member = models.BooleanField(default=False, verbose_name='Member')
+    parking_fee = models.FloatField(default=0) 
     def __str__(self) -> str:
         return f"{self.vehicle_id} - {self.time_in} - {self.time_out}"
     
