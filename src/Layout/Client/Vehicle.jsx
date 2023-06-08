@@ -8,7 +8,6 @@ const Vehicle = (props) => {
   const [client, setClient] = useState({});
   const [vehicle, setVehicle] = useState({});
   const [timeLogs, setTimeLogs] = useState([]);
-  const IDCtx = useContext(IdClientContext);
   const [isUpdate, setIsUpdate] = useState(false);
   const [parkingFee, setParkingFee] = useState(0);
   const [moneyAdded, setMoneyAdded] = useState(0);
@@ -31,16 +30,21 @@ const Vehicle = (props) => {
       calculateParkingFee();
       const interval = setInterval(() => {
         calculateParkingFee();
-      }, 30000);
+      }, 10000);
     }
   }, []);
-
   const calculateParkingFee = () => {
     const currentTime = new Date(); // Thời gian hiện tại
     const timeIn = new Date(timeLogs.time_in);
-    const timeDifference = currentTime.getTime() - timeIn.getTime();
-    const fee = Math.floor(timeDifference / (5 * 60 * 1000)) * 1000;
-    setParkingFee(fee);
+    console.log(timeIn);
+    const timeParked =
+      Math.floor(currentTime.getTime() - timeIn.getTime()) / (24 * 60 * 60);
+    if (timeParked < 1) {
+      setParkingFee(10000);
+    } else {
+      const fee = timeParked * 10000;
+      setParkingFee(fee);
+    }
   };
   const handleEditClick = (e) => {
     e.preventDefault();
@@ -50,7 +54,7 @@ const Vehicle = (props) => {
         const _updateClient = async () => {
           const res = await updateAccount({
             ...client,
-            parking_fee: moneyAdded,
+            balance: moneyAdded,
           });
           setClient(res);
         };
@@ -60,7 +64,7 @@ const Vehicle = (props) => {
   };
 
   const handleAddMoney = (e) => {
-    const prevMoney = parseInt(client?.parking_fee);
+    const prevMoney = parseInt(client?.balance);
     const money = parseInt(e.target.value);
     if (money >= 5000 && money % 1000 === 0) {
       setMoneyAdded("" + (prevMoney + money));
@@ -73,6 +77,7 @@ const Vehicle = (props) => {
   const logVehicle = timeLogs.filter((log) => {
     return log.vehicle === vehicle.license_plate;
   });
+  const time = new Date(client.date_joined);
   return (
     <Card
       className="m-5"
@@ -111,7 +116,7 @@ const Vehicle = (props) => {
               Date Join:
             </Form.Label>
             <Col xs={8}>
-              <Form.Text>{client?.date_joined}</Form.Text>
+              <Form.Text>{time.toString()}</Form.Text>
             </Col>
           </Form.Group>
           <Form.Group
@@ -123,7 +128,7 @@ const Vehicle = (props) => {
               Money in Account:
             </Form.Label>
             <Col xs={8}>
-              <Form.Text>{client?.parking_fee}</Form.Text>
+              <Form.Text>{client?.balance}</Form.Text>
             </Col>
           </Form.Group>
           <Form.Group

@@ -151,12 +151,12 @@ export default function Profile(props) {
                   />
                 </Form.Group>
                 <Form.Group controlId="formContact">
-                  <Form.Label>Parking Fee</Form.Label>
+                  <Form.Label>Money in account</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Parking Fee"
                     readOnly
-                    value={client?.parking_fee}
+                    value={client?.balance}
                     onChange={(e) =>
                       setClient({ ...client, contact: e.target.value })
                     }
@@ -185,7 +185,6 @@ export default function Profile(props) {
                 </Form.Group>
               </Form>
             </Card.Body>
-            {/* <ToastContainer position="top-right" /> */}
           </Card>
         </Row>
       </Col>

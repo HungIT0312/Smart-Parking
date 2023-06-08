@@ -75,13 +75,12 @@ const License = () => {
 
   return (
     <Container style={{ color: Color.paragraph, maxHeight: "100vh" }}>
-      <Row className="m-5">
+      <Row style={{ height: "100vh" }}>
         <Card
           style={{
             backgroundColor: Color.cardBackgroundColor,
             boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
           }}
-          className="my-5"
         >
           <Card.Header
             className="text-center"
@@ -191,12 +190,11 @@ const License = () => {
           </Card.Body>
         </Card>
       </Row>
-      <Row className="m-5" id="checkout">
+      <Row style={{ height: "100vh" }} id="checkout">
         <Card
           style={{
             backgroundColor: Color.cardBackgroundColor,
             boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-            marginBottom: 160,
           }}
         >
           <Card.Header
@@ -216,8 +214,7 @@ const License = () => {
                 className="d-flex flex-column align-items-center justify-content-center"
               >
                 <p>
-                  License plate:{" "}
-                  {resultCheckOut?.result_detection || noti || "None"}
+                  Notice: {resultCheckOut?.result_detection || noti || "None"}
                 </p>
                 <Image src={resultCheckOut?.image || image} thumbnail fluid />
               </Col>
@@ -278,7 +275,7 @@ const License = () => {
                       value={resultCheckOut?.date_joined || ""}
                     />
                   </FormGroup>
-                  <div className="d-flex justify-content-center mt-3">
+                  {/* <div className="d-flex justify-content-center mt-3">
                     <Button
                       variant="primary"
                       className="align-items-center"
@@ -288,7 +285,7 @@ const License = () => {
                       <GiBarrier size={20} className="me-2" />
                       Open
                     </Button>
-                  </div>
+                  </div> */}
                 </Form>
               </Col>
             </Row>

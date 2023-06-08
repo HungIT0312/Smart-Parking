@@ -18,11 +18,11 @@ class Http {
         return response.data;
       },
       ({ response }) => {
-        if (response.status === 401) {
-          console.log(response);
-        }
-        const result = { ...response.data, status: response.status };
-        return Promise.reject(result);
+        // if (response.status === 401) {
+        //   console.log(response);
+        // }
+        // const result = { ...response.data, status: response.status };
+        // return Promise.reject(result);
       }
     );
     this.instance.interceptors.request.use(

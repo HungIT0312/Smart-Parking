@@ -11,7 +11,7 @@ export default function Auth(props) {
       navigate("/Manager/Login");
       toast.warning("You don't have enough permission to access !");
     }
-  });
+  }, []);
 
   return (
     <Container className="p-0  overflow-hidden" fluid>
