@@ -98,10 +98,7 @@ const License = () => {
                 md={6}
                 className="d-flex flex-column align-items-center justify-content-center"
               >
-                <p>
-                  License plate:{" "}
-                  {data.Clients?.result_detection || noti || "None"}
-                </p>
+                <p>License plate: {data.Clients?.result_detection || "None"}</p>
                 <Image src={data?.Clients?.image || image} thumbnail fluid />
                 <Button
                   className="mt-2 d-flex align-items-center justify-content-center btn-info"
@@ -118,6 +115,11 @@ const License = () => {
                 className="d-flex flex-column justify-content-center"
               >
                 <Form name="formManage">
+                  <Container className="d-flex justify-content-center align-items-center">
+                    <p style={{ fontSize: 18 }}>
+                      Notification: {noti || "none"}
+                    </p>
+                  </Container>
                   <Row>
                     <Col>
                       <Form.Group controlId="formBasicEmail">
@@ -125,7 +127,7 @@ const License = () => {
                         <Form.Control
                           readOnly
                           type="text"
-                          placeholder="Enter first name"
+                          placeholder="first name"
                           required
                           value={data?.Clients?.first_name || ""}
                         />
@@ -137,7 +139,7 @@ const License = () => {
                         <Form.Control
                           readOnly
                           type="text"
-                          placeholder="Enter last name"
+                          placeholder="last name"
                           required
                           value={data?.Clients?.last_name || ""}
                         />
@@ -159,7 +161,7 @@ const License = () => {
                     <Form.Control
                       readOnly
                       type="text"
-                      placeholder="Enter license plate"
+                      placeholder="license plate"
                       required
                       value={data?.Clients?.license_plate || ""}
                     />
@@ -213,12 +215,15 @@ const License = () => {
                 md={6}
                 className="d-flex flex-column align-items-center justify-content-center"
               >
-                <p>
-                  Notice: {resultCheckOut?.result_detection || noti || "None"}
-                </p>
+                <p>License: {resultCheckOut?.result_detection || "None"}</p>
                 <Image src={resultCheckOut?.image || image} thumbnail fluid />
               </Col>
               <Col xs={12} md={6} className="d-flex flex-column">
+                <Container className="d-flex justify-content-center align-items-center">
+                  <p style={{ fontSize: 18 }}>
+                    Notification: {resultCheckOut?.notification || "none"}
+                  </p>
+                </Container>
                 <Form name="formManage">
                   <Row>
                     <Col>
@@ -227,7 +232,7 @@ const License = () => {
                         <Form.Control
                           readOnly
                           type="text"
-                          placeholder="Enter first name"
+                          placeholder="first name"
                           required
                           value={resultCheckOut?.first_name || ""}
                         />
@@ -239,7 +244,7 @@ const License = () => {
                         <Form.Control
                           readOnly
                           type="text"
-                          placeholder="Enter last name"
+                          placeholder="last name"
                           required
                           value={resultCheckOut?.last_name || ""}
                         />
@@ -261,18 +266,18 @@ const License = () => {
                     <Form.Control
                       readOnly
                       type="text"
-                      placeholder="Enter license plate"
+                      placeholder="license plate"
                       required
                       value={resultCheckOut?.license_plate || ""}
                     />
                   </Form.Group>
                   <FormGroup controlId="formDateJoin">
-                    <FormLabel>Date Join</FormLabel>
+                    <FormLabel>Fee</FormLabel>
                     <FormControl
                       readOnly
                       type="text"
                       placeholder="address"
-                      value={resultCheckOut?.date_joined || ""}
+                      value={resultCheckOut?.fee || ""}
                     />
                   </FormGroup>
                   {/* <div className="d-flex justify-content-center mt-3">

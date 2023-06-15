@@ -13,7 +13,9 @@ export default function TimeLog() {
   useEffect(() => {
     const _getTimeLog = async () => {
       const res = await getTimeLog();
-      setTimeLogs(res);
+      if (res) {
+        setTimeLogs(res);
+      }
     };
     _getTimeLog();
   }, []);

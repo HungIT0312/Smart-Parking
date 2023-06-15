@@ -52,7 +52,7 @@ export default function Clients() {
                 <th>Last Name</th>
                 <th>Email</th>
                 <th>Date Joined</th>
-                <th>Parking Fee</th>
+                <th>Money</th>
                 <th>Options</th>
               </tr>
             </thead>
@@ -66,7 +66,7 @@ export default function Clients() {
                       <td className="d-sm-table-cell">{client.last_name}</td>
                       <td className="d-sm-table-cell">{client.email}</td>
                       <td className="d-sm-table-cell">{client.date_joined}</td>
-                      <td className="d-sm-table-cell">{client.parking_fee}</td>
+                      <td className="d-sm-table-cell">{client.balance}</td>
                       <td className="d-sm-table-cell d-flex">
                         <Button
                           value={client.id}
